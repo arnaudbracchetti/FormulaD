@@ -2,7 +2,7 @@
 
 import { Action, MoveSpaceDefinitionAction, LinkSpaceDefinitionAction, RotateSpaceDefinitionAction, ScrollViewAction } from './actions';
 import { BoardDefinitionService } from './board-definition.service';
-import { SpaceDefinition, SpaceDefinitionPaperRepresentation } from './space-definition';
+import { SpaceDefinitionImpl, SpaceDefinitionPaperRepresentation, SpaceDefinition } from './space-definition';
 import { Injectable } from '@angular/core';
 import { Tool, Project, ToolEvent, HitResult, Group } from 'paper';
 
@@ -37,12 +37,12 @@ export class SpaceCreationTool extends Tool {
                     this.target.view.zoom /= 1.1;
                     break;
                 case 'delete':
-                    for (let item of this.target.getItems({ selected: true, class: SpaceDefinitionPaperRepresentation })) {
+                    for (let item of this.target.getItems({ selected: true, class: Group, name: 'space-group' })) {
                         item.data.remove();
                     }
 
             }
-        }
+        };
 
     }
 
@@ -50,24 +50,24 @@ export class SpaceCreationTool extends Tool {
 
         let hit: HitResult = this.target.hitTest(evt.point);
 
-        if (!hit.item) return;
+        if (!hit.item) { return; }
 
         switch (hit.item.name) {
             case 'space-handle':
-                this.action = new MoveSpaceDefinitionAction(hit.item.parent as SpaceDefinitionPaperRepresentation);
+                this.action = new MoveSpaceDefinitionAction(hit.item.parent.data as SpaceDefinition);
                 break;
             case 'space-body':
                 if (evt.modifiers.shift) {
                     hit.item.parent.selected = true;
                 } else {
-                    this.action = new LinkSpaceDefinitionAction(hit.item.parent as SpaceDefinitionPaperRepresentation);
+                    this.action = new LinkSpaceDefinitionAction(this.target, hit.item.parent.data as SpaceDefinition);
                 }
                 break;
             case 'space-direction':
                 if (evt.modifiers.shift) {
                     hit.item.parent.selected = true;
                 } else {
-                    this.action = new RotateSpaceDefinitionAction(hit.item.parent as SpaceDefinitionPaperRepresentation);
+                    this.action = new RotateSpaceDefinitionAction(hit.item.parent.data as SpaceDefinition);
                 }
                 break;
             default:

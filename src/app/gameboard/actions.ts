@@ -1,6 +1,6 @@
 import { BoardDefinitionService } from './board-definition.service';
-import { SpaceDefinition, SpaceDefinitionPaperRepresentation } from './space-definition';
-import { Point, View, HitResult, Path } from 'paper';
+import { SpaceDefinitionImpl, SpaceDefinitionPaperRepresentation, SpaceDefinition } from './space-definition';
+import { Point, View, HitResult, Path, Project } from 'paper';
 
 
 export interface Action {
@@ -10,14 +10,14 @@ export interface Action {
 
 export class MoveSpaceDefinitionAction implements Action {
 
-    private target: SpaceDefinitionPaperRepresentation;
+    private target: SpaceDefinition;
 
-    constructor(target: SpaceDefinitionPaperRepresentation) {
+    constructor(target: SpaceDefinition) {
         this.target = target;
     }
 
     public doAction(point: Point) {
-        this.target.data.setPosition(point.x, point.y);
+        this.target.setPosition(point.x, point.y);
     }
 
     public endAction(point: Point) { }
@@ -25,14 +25,14 @@ export class MoveSpaceDefinitionAction implements Action {
 
 export class RotateSpaceDefinitionAction implements Action {
 
-    private target: SpaceDefinitionPaperRepresentation;
+    private target: SpaceDefinition;
 
-    constructor(target: SpaceDefinitionPaperRepresentation) {
+    constructor(target: SpaceDefinition) {
         this.target = target;
     }
 
     public doAction(point: Point) {
-        this.target.data.setAngle(point.subtract(this.target.bounds.center).angle);
+        this.target.setAngle(point.subtract(new Point(this.target.x, this.target.y)).angle);
     }
 
     public endAction(point: Point) { }
@@ -40,16 +40,18 @@ export class RotateSpaceDefinitionAction implements Action {
 
 export class LinkSpaceDefinitionAction implements Action {
 
-    private target: SpaceDefinitionPaperRepresentation;
+    private target: SpaceDefinition;
+    private paperProject: Project;
     private link: Path;
 
 
-    constructor(target: SpaceDefinitionPaperRepresentation) {
+    constructor(paperProject: Project, target: SpaceDefinition) {
         this.target = target;
+        this.paperProject = paperProject;
     }
 
     public doAction(point: Point) {
-        this.link = new Path([this.target.bounds.center, point])
+        this.link = new Path([new Point(this.target.x, this.target.y), point]);
         this.link.removeOnMove();
         this.link.removeOnUp();
         this.link.strokeColor = 'black';
@@ -57,10 +59,10 @@ export class LinkSpaceDefinitionAction implements Action {
     }
 
     public endAction(point: Point) {
-        let hit: HitResult = this.target.project.hitTest(point);
+        let hit: HitResult = this.paperProject.hitTest(point);
 
-        if (hit.item.name == 'space-body') {
-            this.target.data.addLink(hit.item.parent.data as SpaceDefinition);
+        if (hit.item.name === 'space-body') {
+            this.target.addLink(hit.item.parent.data as SpaceDefinitionImpl);
         }
     }
 }

@@ -1,5 +1,5 @@
 import { BoardDefinition } from './board-definition';
-import { SpaceDefinition, SpaceDefinitionPaperRepresentation } from './space-definition';
+import { SpaceDefinitionImpl, SpaceDefinitionPaperRepresentation, SpaceDefinition } from './space-definition';
 import { Injectable } from '@angular/core';
 
 @Injectable()
@@ -14,7 +14,10 @@ export class BoardDefinitionService {
     }
 
     public createSpaceDefinition(x: number, y: number): SpaceDefinition {
-        return new SpaceDefinition(x, y, new SpaceDefinitionPaperRepresentation());
+        let spaceDef: SpaceDefinition = new SpaceDefinitionImpl(x, y);
+        spaceDef = new SpaceDefinitionPaperRepresentation(spaceDef);
+
+        return spaceDef;
     }
 
 }

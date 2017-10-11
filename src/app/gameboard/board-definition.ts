@@ -1,6 +1,6 @@
-import { SpaceDefinition } from './space-definition';
+import { SpaceDefinitionImpl } from './space-definition';
 
 export class BoardDefinition {
     public map: string;
-    public spacesDefinition: SpaceDefinition[] = new Array<SpaceDefinition>();
+    public spacesDefinition: SpaceDefinitionImpl[] = new Array<SpaceDefinitionImpl>();
 }
