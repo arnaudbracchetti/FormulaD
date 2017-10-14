@@ -38,7 +38,7 @@ export class SpaceCreationTool extends Tool {
                     break;
                 case 'delete':
                     for (let item of this.target.getItems({ selected: true, class: Group, name: 'space-group' })) {
-                        item.data.remove();
+                        this.boardDefinitionService.removeSpaceDefinition(item.data);
                     }
 
             }

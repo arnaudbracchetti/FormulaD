@@ -88,7 +88,7 @@ export class ScrollViewAction implements Action {
 
     public endAction(point: Point) {
         if (!this.isScrolled) {
-            this.boardDefinitionService.createSpaceDefinition(point.x, point.y);
+            this.boardDefinitionService.addNewSpaceDefinition(point.x, point.y);
         }
 
     }

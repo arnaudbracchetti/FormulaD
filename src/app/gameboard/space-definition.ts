@@ -1,16 +1,20 @@
+import { BoardDefinitionService } from './board-definition.service';
 import { CompoundPath, Group, Point, Path, CurveLocation, Size } from 'paper';
+import * as firebase from 'firebase';
+import { AngularFireDatabase } from 'angularfire2/database';
 
-class Link {
-    public origin: SpaceDefinitionImpl;
-    public target: SpaceDefinitionImpl;
-}
+//class Link {
+//    public origin: SpaceDefinitionImpl;
+//    public target: SpaceDefinitionImpl;
+//}
 
 
 
 export abstract class SpaceDefinition {
 
-    abstract self: SpaceDefinition;
+    abstract self: SpaceDefinition;  // reference on the begining of the decorator chain
 
+    abstract id: string;
     abstract angle: number;
     abstract x: number;
     abstract y: number;
@@ -23,7 +27,7 @@ export abstract class SpaceDefinition {
 
     abstract setAngle(angle: number);
     abstract setPosition(x: number, y: number);
-    abstract addLink(target: SpaceDefinition);
+    abstract addLink(target: SpaceDefinition): boolean;
     abstract removeLink(target: SpaceDefinition);
     abstract remove();
 }
@@ -31,7 +35,7 @@ export abstract class SpaceDefinition {
 export abstract class SpaceDefinitionDecorator extends SpaceDefinition {
 
 
-    public spaceDefinition: SpaceDefinition;
+    public decorated: SpaceDefinition;
     public self: SpaceDefinition;
 
     constructor(target: SpaceDefinition) {
@@ -40,21 +44,23 @@ export abstract class SpaceDefinitionDecorator extends SpaceDefinition {
     }
 
     public decorate(target: SpaceDefinition) {
-        this.spaceDefinition = target;
+        this.decorated = target;
 
         let item: SpaceDefinition = this;
 
         while (item instanceof SpaceDefinitionDecorator) {
-            item.spaceDefinition.self = this;
-            item = item.spaceDefinition;
+            item.decorated.self = this;
+            item = item.decorated;
         }
     }
 
 
 }
 
-export class SpaceDefinitionImpl implements SpaceDefinition {
+export class SpaceDefinitionImpl extends SpaceDefinition {
     private static defaultOriantation: number = 0;
+
+    public id: string;
     public angle: number;
     public x: number;
     public y: number;
@@ -66,12 +72,20 @@ export class SpaceDefinitionImpl implements SpaceDefinition {
 
     // public representation: SpaceDefinitionRepresentation;
 
-    get data(): SpaceDefinitionImpl { return this.data as SpaceDefinitionImpl; }
+    //get data(): SpaceDefinition { return this.data as SpaceDefinition; }
 
-    constructor(x: number, y: number) {
+    constructor(id: string, x: number, y: number, angle?: number) {
+        super();
+
+        this.id = id;
         this.x = x;
         this.y = y;
-        this.angle = SpaceDefinitionImpl.defaultOriantation;
+
+        if (angle) {
+            this.angle = angle;
+        } else {
+            this.angle = SpaceDefinitionImpl.defaultOriantation;
+        }
         // this.representation = representation;
         // this.representation.setSpaceDefinition(this);
 
@@ -92,11 +106,18 @@ export class SpaceDefinitionImpl implements SpaceDefinition {
         // this.representation.drawRepresentation();
     }
 
-    public addLink(target: SpaceDefinition) {
+    public addLink(target: SpaceDefinition): boolean {
+
+        if (this.successors.includes(target.self) || target.self === this.self) {
+            // can't link same SpaceDefintion twice
+            // can't link SpaceDefinition with itself
+            return false;
+        }
+
         this.successors.push(target);
         target.predecessors.push(this.self);
 
-        // this.representation.drawLinks();
+        return true;
     }
 
     public removeLink(target: SpaceDefinition) {
@@ -151,18 +172,18 @@ export class SpaceDefinitionPaperRepresentation extends SpaceDefinitionDecorator
 
 
 
-    public spaceDefinition: SpaceDefinition;
+    public get id(): string { return this.decorated.id; }
 
-    public get x(): number { return this.spaceDefinition.x; }
-    public set x(val: number) { this.spaceDefinition.x = val; }
+    public get x(): number { return this.decorated.x; }
+    public set x(val: number) { this.decorated.x = val; }
 
-    public get y(): number { return this.spaceDefinition.y; }
-    public set y(val: number) { this.spaceDefinition.y = val; }
+    public get y(): number { return this.decorated.y; }
+    public set y(val: number) { this.decorated.y = val; }
 
-    public get angle(): number { return this.spaceDefinition.angle; }
+    public get angle(): number { return this.decorated.angle; }
 
-    public get successors(): SpaceDefinition[] { return this.spaceDefinition.successors; }
-    public get predecessors(): SpaceDefinition[] { return this.spaceDefinition.predecessors; }
+    public get successors(): SpaceDefinition[] { return this.decorated.successors; }
+    public get predecessors(): SpaceDefinition[] { return this.decorated.predecessors; }
 
 
     constructor(spaceDef: SpaceDefinition) {
@@ -180,28 +201,36 @@ export class SpaceDefinitionPaperRepresentation extends SpaceDefinitionDecorator
     }
 
     setAngle(angle: number) {
-        this.spaceDefinition.setAngle(angle);
+        this.decorated.setAngle(angle);
 
         this.drawRepresentation();
     }
 
     setPosition(x: number, y: number) {
-        this.spaceDefinition.setPosition(x, y);
+        this.decorated.setPosition(x, y);
 
         this.drawRepresentation();
     }
-    addLink(target: SpaceDefinition) {
-        this.spaceDefinition.addLink(target);
+    addLink(target: SpaceDefinition): boolean {
+        let ret = this.decorated.addLink(target);
 
-        this.drawLinks();
+        if (ret) {
+            this.drawLinks();
+        }
+
+        return ret;
     }
+
+
     removeLink(target: SpaceDefinition) {
-        this.spaceDefinition.removeLink(target);
+        this.decorated.removeLink(target);
 
         this.drawLinks();
     }
+
+
     remove() {
-        this.spaceDefinition.remove();
+        this.decorated.remove();
 
         for (let predecessor of this.predecessors) {
             this.getSpaceDefinitionPaperRepresentationDecorator(predecessor).drawLinks();
@@ -246,8 +275,8 @@ export class SpaceDefinitionPaperRepresentation extends SpaceDefinitionDecorator
                 new Path([destination.add(arrow.rotate(135)), destination, destination.add(arrow.rotate(-135))])
             ]);
 
-            link.strokeColor = 'blue';
-            link.strokeWidth = 3;
+            link.strokeColor = '#FFC300';
+            link.strokeWidth = 4;
 
 
             link.moveBelow(this.representation);
@@ -293,6 +322,7 @@ export class SpaceDefinitionPaperRepresentation extends SpaceDefinitionDecorator
         spaceBody = new Path.Rectangle(new Point(0, 0), new Size(60, 30));
         spaceBody.strokeColor = 'black';
         spaceBody.fillColor = 'red';
+        spaceBody.opacity = 0.5;
         spaceBody.name = 'space-body';
         this.representation.addChild(spaceBody);
 
@@ -305,6 +335,7 @@ export class SpaceDefinitionPaperRepresentation extends SpaceDefinitionDecorator
         spaceDirection.closePath(true);
         spaceDirection.strokeColor = 'black';
         spaceDirection.fillColor = 'green';
+        spaceDirection.opacity = 0.5;
         spaceDirection.name = 'space-direction';
         this.representation.addChild(spaceDirection);
 
@@ -317,7 +348,7 @@ export class SpaceDefinitionPaperRepresentation extends SpaceDefinitionDecorator
     }
 
     private isDecorator(item: any): item is SpaceDefinitionDecorator {
-        return item.spaceDefinition !== undefined;
+        return item.decorated !== undefined;
     }
 
     private isSpaceDefinitionPaperRepresentation(item: any): item is SpaceDefinitionPaperRepresentation {
@@ -325,16 +356,159 @@ export class SpaceDefinitionPaperRepresentation extends SpaceDefinitionDecorator
     }
 
     private getSpaceDefinitionPaperRepresentationDecorator(item: SpaceDefinition): SpaceDefinitionPaperRepresentation {
+
+        item = item.self; // we start searching from the top of decorator chain
+
         while (this.isDecorator(item)) {
             if (this.isSpaceDefinitionPaperRepresentation(item)) {
                 return item as SpaceDefinitionPaperRepresentation;
             }
 
-            item = item.spaceDefinition;
+            item = item.decorated;
         }
 
-        return undefined;
+        throw (new Error('SpaceDefinitionPaperRepresentation decorator not found'));
     }
+}
+
+
+export class SpaceDefinitionFirebasePercitence extends SpaceDefinitionDecorator {
+
+    public get id(): string { return this.decorated.id; }
+
+    public get x(): number { return this.decorated.x; }
+    public set x(val: number) { this.decorated.x = val; }
+
+    public get y(): number { return this.decorated.y; }
+    public set y(val: number) { this.decorated.y = val; }
+
+    public get angle(): number { return this.decorated.angle; }
+
+    public get successors(): SpaceDefinition[] { return this.decorated.successors; }
+    public get predecessors(): SpaceDefinition[] { return this.decorated.predecessors; }
+
+
+    private dbSpaceDefinitionObjectRef: firebase.database.Reference;
+    private dbSpaceDefinitionLinkRef: firebase.database.Reference;
+    private timeoutHandler;
+    private autoSave = true;
+    private boardDefinitionService: BoardDefinitionService;
+
+    constructor(spaceDef: SpaceDefinition, dbRef: firebase.database.Reference, boardDefService: BoardDefinitionService) {
+        super(spaceDef);
+
+        this.boardDefinitionService = boardDefService;
+        this.initFirebase(dbRef);
+
+
+    }
+
+    setAngle(angle: number) {
+        let changed = angle !== this.angle;
+
+        this.decorated.setAngle(angle);
+        if (changed && this.autoSave) { this.save(); }
+
+    }
+
+
+    setPosition(x: number, y: number) {
+        let changed = x !== this.x || y !== this.y;
+
+        this.decorated.setPosition(x, y);
+        if (changed && this.autoSave) { this.save(); }
+    }
+
+
+    addLink(target: SpaceDefinition) {
+        let ret = this.decorated.addLink(target);
+
+
+        if (this.autoSave && ret) {
+            this.dbSpaceDefinitionLinkRef.child(target.id).set(true);
+        }
+
+        return ret;
+
+    }
+
+
+    removeLink(target: SpaceDefinition) {
+        this.decorated.removeLink(target);
+
+        if (this.autoSave) {
+            this.dbSpaceDefinitionLinkRef.child(target.id).remove();
+        }
+    }
+
+
+    remove() {
+        this.decorated.remove();
+
+        this.dbSpaceDefinitionObjectRef.off('value');
+        this.dbSpaceDefinitionLinkRef.off('child_added');
+        this.dbSpaceDefinitionLinkRef.off('child_removed');
+
+    }
+
+    public save() {
+
+        clearTimeout(this.timeoutHandler);
+
+        this.timeoutHandler = setTimeout(() =>
+            this.dbSpaceDefinitionObjectRef.update(
+                {
+                    x: this.x,
+                    y: this.y,
+                    angle: this.angle
+                }), 1000);
+
+    }
+
+    public delete() {
+
+    }
+
+    private initFirebase(dbRef: firebase.database.Reference) {
+        this.dbSpaceDefinitionObjectRef = dbRef.child('Objects').child(this.self.id);
+        this.dbSpaceDefinitionLinkRef = dbRef.child('Links').child(this.self.id);
+
+        this.dbSpaceDefinitionObjectRef.on('value', (snapshot) => this.onValueChange(snapshot));
+        this.dbSpaceDefinitionLinkRef.on('child_added', (snapshot) => this.onLinkAdded(snapshot));
+        this.dbSpaceDefinitionLinkRef.on('child_removed', (snapshot) => this.onLinkRemoved(snapshot));
+    }
+
+    private onValueChange(snapshot: firebase.database.DataSnapshot) {
+        let val = snapshot.val();
+
+        if (val) {
+            this.autoSave = false;
+            this.self.setPosition(val.x, val.y);
+
+            if (val.angle) {
+                this.self.setAngle(val.angle);
+            }
+
+            this.autoSave = true;
+        }
+    }
+
+    private onLinkAdded(snapshot: firebase.database.DataSnapshot) {
+        let target = this.boardDefinitionService.getSpaceDefinitionFromId(snapshot.key);
+
+        this.autoSave = false;
+        this.self.addLink(target);
+        this.autoSave = true;
+    }
+
+    private onLinkRemoved(snapshot: firebase.database.DataSnapshot) {
+        let target = this.boardDefinitionService.getSpaceDefinitionFromId(snapshot.key);
+
+        this.autoSave = false;
+        this.self.removeLink(target);
+        this.autoSave = true;
+    }
+
 }
 
 // export class SpaceDefinitionPaperRepresentation extends Group implements SpaceDefinitionRepresentation {

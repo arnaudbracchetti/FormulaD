@@ -29,6 +29,7 @@ export class GameboardComponent implements OnInit, AfterViewInit {
 
     constructor(boardDefinitionService: BoardDefinitionService) {
         this.boardDefinitionService = boardDefinitionService;
+
     }
 
     ngOnInit() {
@@ -43,12 +44,17 @@ export class GameboardComponent implements OnInit, AfterViewInit {
 
         new SpaceCreationTool(this.board, this.boardDefinitionService);
         // const raster = new Raster('../assets/rl02_Alsace.jpg');
-        const raster = new Raster('../assets/rl02_Alsace.jpg');
 
-        new Layer();
+        this.boardDefinitionService.load('Circuit2').then(() => {
+            console.log(`../assets/${this.boardDefinitionService.mapFile}`);
+            const raster = new Raster(`../assets/${this.boardDefinitionService.mapFile}`);
+
+            new Layer();
 
 
-        this.board.view.draw();
+            this.board.view.draw();
+
+        });
     }
 
     public setMoveAndZoomTool() {
