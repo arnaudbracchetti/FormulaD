@@ -1,7 +1,9 @@
 
 import { AngularFireDatabase } from 'angularfire2/database';
 import * as firebase from 'firebase';
-import { SpaceDefinitionImpl, SpaceDefinitionPaperRepresentation, SpaceDefinition, SpaceDefinitionFirebasePercitence } from './space-definition';
+import { SpaceDefinitionImpl, SpaceDefinition } from './space-definition';
+import { SpaceDefinitionFirebasePercitence } from './space-definition-percistence.decorator';
+import { SpaceDefinitionPaperRepresentation } from './space-definition-representation.decorator';
 import { Injectable } from '@angular/core';
 
 @Injectable()
@@ -98,6 +100,7 @@ export class BoardDefinitionService {
     public removeSpaceDefinition(spaceDef: SpaceDefinition) {
 
         this.spaceDefinitionRef.child('Objects').child(spaceDef.id).remove();
+        this.spaceDefinitionRef.child('Links').child(spaceDef.id).remove();
 
     }
 

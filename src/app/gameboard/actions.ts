@@ -1,5 +1,5 @@
 import { BoardDefinitionService } from './board-definition.service';
-import { SpaceDefinitionImpl, SpaceDefinitionPaperRepresentation, SpaceDefinition } from './space-definition';
+import { SpaceDefinition } from './space-definition';
 import { Point, View, HitResult, Path, Project } from 'paper';
 
 
@@ -62,7 +62,7 @@ export class LinkSpaceDefinitionAction implements Action {
         let hit: HitResult = this.paperProject.hitTest(point);
 
         if (hit.item.name === 'space-body') {
-            this.target.addLink(hit.item.parent.data as SpaceDefinitionImpl);
+            this.target.addLink(hit.item.parent.data as SpaceDefinition);
         }
     }
 }

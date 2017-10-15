@@ -2,8 +2,7 @@
 
 import { Action, MoveSpaceDefinitionAction, LinkSpaceDefinitionAction, RotateSpaceDefinitionAction, ScrollViewAction } from './actions';
 import { BoardDefinitionService } from './board-definition.service';
-import { SpaceDefinitionImpl, SpaceDefinitionPaperRepresentation, SpaceDefinition } from './space-definition';
-import { Injectable } from '@angular/core';
+import { SpaceDefinition } from './space-definition';
 import { Tool, Project, ToolEvent, HitResult, Group } from 'paper';
 
 
@@ -50,7 +49,7 @@ export class SpaceCreationTool extends Tool {
 
         let hit: HitResult = this.target.hitTest(evt.point);
 
-        if (!hit.item) { return; }
+        if (!hit || !hit.item) { return; }  // no element under mouse pointer
 
         switch (hit.item.name) {
             case 'space-handle':

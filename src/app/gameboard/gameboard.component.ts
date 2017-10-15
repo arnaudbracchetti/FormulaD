@@ -45,7 +45,7 @@ export class GameboardComponent implements OnInit, AfterViewInit {
         new SpaceCreationTool(this.board, this.boardDefinitionService);
         // const raster = new Raster('../assets/rl02_Alsace.jpg');
 
-        this.boardDefinitionService.load('Circuit2').then(() => {
+        this.boardDefinitionService.load('Circuit3').then(() => {
             console.log(`../assets/${this.boardDefinitionService.mapFile}`);
             const raster = new Raster(`../assets/${this.boardDefinitionService.mapFile}`);
 
