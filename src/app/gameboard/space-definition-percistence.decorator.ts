@@ -83,6 +83,8 @@ export class SpaceDefinitionFirebasePercitence extends SpaceDefinitionDecorator 
         // TODO: currently spaceDefinition is delete from data base in BordDefinitionService
         // we should change this in the furtur
 
+        // TODO: all callbacks are removed from the ref, this could generate issue later.
+
         this.dbSpaceDefinitionObjectRef.off('value');
         this.dbSpaceDefinitionLinkRef.off('child_added');
         this.dbSpaceDefinitionLinkRef.off('child_removed');

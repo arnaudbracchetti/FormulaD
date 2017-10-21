@@ -1,11 +1,16 @@
 import { BoardDefinitionService } from './board-definition.service';
-import { Component, OnInit, AfterViewInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit, Input } from '@angular/core';
 import { PaperScope, Project, Raster, Tool, Point, ToolEvent, Layer } from 'paper';
 import { SpaceCreationTool } from './tools';
 
 
 
-
+/**
+ * This Angular component implement the gameboard. It manage the bitmap presenting
+ * the background of the board, and SpaceDefinition.
+ *
+ * It use Paper library to manager display in a single canevas HTML element
+ */
 
 
 @Component({
@@ -18,6 +23,8 @@ import { SpaceCreationTool } from './tools';
         'canvas { flex : 1; height: 700px }']
 })
 export class GameboardComponent implements OnInit, AfterViewInit {
+
+
 
 
     private scope: PaperScope;
@@ -39,20 +46,28 @@ export class GameboardComponent implements OnInit, AfterViewInit {
 
     ngAfterViewInit(): void {
 
-        this.scope = new PaperScope();
-        this.board = new Project('board');
+        if (!this.scope) {
+            this.scope = new PaperScope();
+        }
 
-        new SpaceCreationTool(this.board, this.boardDefinitionService);
-        // const raster = new Raster('../assets/rl02_Alsace.jpg');
+        if (!this.board) {
+            this.board = new Project('board');
+            new SpaceCreationTool(this.board, this.boardDefinitionService);
+        } else {
+            this.board.clear();
+        }
 
-        this.boardDefinitionService.load('Circuit3').then(() => {
-            console.log(`../assets/${this.boardDefinitionService.mapFile}`);
-            const raster = new Raster(`../assets/${this.boardDefinitionService.mapFile}`);
-
-            new Layer();
+        this.board.layers['background'] = new Layer();
+        this.board.layers['foreground'] = new Layer();
 
 
-            this.board.view.draw();
+        this.boardDefinitionService.selectedBoardImageFile.then((fileUrl) => {
+            this.board.layers['background'].activate();
+            const raster = new Raster(fileUrl);
+            this.board.layers['foreground'].activate();
+
+
+            //this.board.view.draw();
 
         });
     }

@@ -19,10 +19,10 @@
       "testTsconfig": "tsconfig.spec.json",
       "prefix": "app",
       "styles": [
-        "styles.css"
+        "styles.scss"
       ],
       "scripts": [
-      	"../node_modules/paper/dist/paper-full.min.js"
+        "../node_modules/paper/dist/paper-full.min.js"
       ],
       "environmentSource": "environments/environment.ts",
       "environments": {
@@ -56,7 +56,8 @@
     }
   },
   "defaults": {
-    "styleExt": "css",
-    "component": {}
+    "styleExt": "scss",
+    "component": {
+    }
   }
 }

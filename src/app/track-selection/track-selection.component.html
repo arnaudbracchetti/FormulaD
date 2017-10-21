@@ -1,0 +1,27 @@
+<div class="columns is-multiline">
+	<div *ngFor="let track of tracks|async" class="column is-6">
+		<div class="card">
+			<header class="card-header">
+				<p class="card-header-title">
+					{{track.name}}
+				</p>
+			</header>
+			<section class="card-image ">
+				<figure class="image">
+					<img alt="" src={{track.boardImageFile}}>
+				</figure>
+			</section>
+			<footer class="card-footer">
+				<a class="card-footer-item">
+					Create new game
+				</a>
+				<a class="card-footer-item" [routerLink]="['/track-config', track.key]">
+					Define track
+				</a>
+			</footer>
+		</div>
+	</div>
+
+</div>
+
+

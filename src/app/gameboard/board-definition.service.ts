@@ -6,12 +6,19 @@ import { SpaceDefinitionFirebasePercitence } from './space-definition-percistenc
 import { SpaceDefinitionPaperRepresentation } from './space-definition-representation.decorator';
 import { Injectable } from '@angular/core';
 
+export class BoardDefinition {
+    public key: string;
+    public name: string;
+    public boardImageFile: string;
+}
+
+
 @Injectable()
 export class BoardDefinitionService {
 
-    public boardKey: string = 'Circuit1';
-    public mapFile: string;
-    public spacesDefinitions: Map<string, SpaceDefinition> = new Map<string, SpaceDefinition>();
+    public selectedBoardKey: string = 'Circuit1';  // TODO:  supprimer cette initialisation
+    public selectedBoardImageFile: Promise<string>;
+    public selectedBoardSpacesDefinitions: Map<string, SpaceDefinition> = new Map<string, SpaceDefinition>();
 
     public db: AngularFireDatabase;
     private spaceDefinitionRef: firebase.database.Reference;
@@ -21,15 +28,49 @@ export class BoardDefinitionService {
         this.db = db;
     }
 
+
     /**
-     * return a SpaceDefinition from the game board by this ID
+     * return the list of all tracks as a Promise
+     */
+    public getBoardDefinitionList(): Promise<Array<BoardDefinition>> {
+
+        let ret = new Promise((resolve, reject) => {
+            this.db.database.ref(`BoardDefinitions`).once('value', (snapshot) => {
+                let val = snapshot.val();
+                let list = new Array<BoardDefinition>();
+
+                for (let item in val) {
+                    if (val.hasOwnProperty(item)) {
+                        let boardDef = new BoardDefinition();
+                        boardDef.key = item;
+                        boardDef.boardImageFile = `../assets/${val[item].mapFile}`;
+                        boardDef.name = val[item].name;
+
+                        //TODO : Ajouter la gestion de vignettes pour limiter le trafic réseau
+
+                        list.push(boardDef);
+                    }
+
+
+                }
+                console.log(list);
+                resolve(list);
+            });
+        });
+
+
+        return ret;
+    }
+
+    /**
+     * return a SpaceDefinition from the selected game board by this ID
      *
      * @param id: id of the SpaceDefinition to find
      * @throw an Error if the id is not found in the game board
      */
     public getSpaceDefinitionFromId(id: string) {
 
-        let ret = this.spacesDefinitions.get(id);
+        let ret = this.selectedBoardSpacesDefinitions.get(id);
 
         if (!ret) {
             throw (new Error('getSpaceDefinitionFromId(): Id not found'));
@@ -41,17 +82,19 @@ export class BoardDefinitionService {
 
 
     /**
-     * Initialize game borard information from database. This methode should be called prior
+     * Initialize game board information from database. This methode should be called prior
      * all other methods on this service.
      *
      * @param boardKey board game id to load from database
-     * @return a Promise resolved when initialisation is done
+     *
      */
-    public load(boardKey: string): Promise<any> {
+    public selectBoard(boardKey: string) {
 
-        this.boardKey = boardKey;
-        this.spaceDefinitionRef = this.db.database.ref(`BoardDefinitions/${this.boardKey}/SpaceDefinitions`);
+        this.selectedBoardKey = boardKey;
+        this.selectedBoardSpacesDefinitions.clear();
+        this.spaceDefinitionRef = this.db.database.ref(`SpaceDefinitions/${this.selectedBoardKey}`);
 
+        //TODO: Clean old selection before loading a new one
 
         let ref = this.db.list<SpaceDefinition>(this.spaceDefinitionRef.child('Objects'));
         ref.stateChanges().subscribe(action => {
@@ -67,14 +110,13 @@ export class BoardDefinitionService {
 
         });
 
-        let ret = new Promise((resolve, reject) => {
-            this.db.database.ref(`BoardDefinitions/${this.boardKey}/mapFile`).once('value', (snapshot) => {
-                this.mapFile = snapshot.val();
-                resolve();
+        this.selectedBoardImageFile = new Promise<string>((resolve, reject) => {
+            this.db.database.ref(`BoardDefinitions/${this.selectedBoardKey}/mapFile`).once('value', (snapshot) => {
+                resolve(`../assets/${snapshot.val()}`);
             });
         });
 
-        return ret;
+
     }
 
     public addNewSpaceDefinition(x: number, y: number) {
@@ -92,7 +134,7 @@ export class BoardDefinitionService {
         spaceDef = new SpaceDefinitionFirebasePercitence(spaceDef, this.spaceDefinitionRef, this);
         spaceDef = new SpaceDefinitionPaperRepresentation(spaceDef);
 
-        this.spacesDefinitions.set(spaceDef.id, spaceDef);
+        this.selectedBoardSpacesDefinitions.set(spaceDef.id, spaceDef);
 
         return spaceDef;
     }
@@ -105,8 +147,8 @@ export class BoardDefinitionService {
     }
 
     private onRemoveSpaceDefinition(key: string) {
-        this.spacesDefinitions.get(key).remove();
-        this.spacesDefinitions.delete(key);
+        this.selectedBoardSpacesDefinitions.get(key).remove();
+        this.selectedBoardSpacesDefinitions.delete(key);
     }
 
 
