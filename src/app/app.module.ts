@@ -14,13 +14,15 @@ import { BoardDefinitionService } from './gameboard/board-definition.service';
 import { TrackSelectionComponent } from './track-selection/track-selection.component';
 
 import { routes } from './routes-definition';
+import { SpaceDefinitionComponent } from './tokens/space-definition/space-definition.component';
 
 @NgModule({
     declarations: [
         AppComponent,
         GameboardComponent,
         BoardDefinitionComponent,
-        TrackSelectionComponent
+        TrackSelectionComponent,
+        SpaceDefinitionComponent
     ],
     imports: [
         BrowserModule,

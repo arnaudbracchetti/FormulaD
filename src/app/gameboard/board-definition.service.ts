@@ -2,9 +2,8 @@
 import { AngularFireDatabase } from 'angularfire2/database';
 import * as firebase from 'firebase';
 import { SpaceDefinitionImpl, SpaceDefinition } from './space-definition';
-import { SpaceDefinitionFirebasePercitence } from './space-definition-percistence.decorator';
-import { SpaceDefinitionPaperRepresentation } from './space-definition-representation.decorator';
 import { Injectable } from '@angular/core';
+import { BehaviorSubject, Observable } from 'rxjs';
 
 export class BoardDefinition {
     public key: string;
@@ -13,12 +12,14 @@ export class BoardDefinition {
 }
 
 
+
 @Injectable()
 export class BoardDefinitionService {
 
     public selectedBoardKey: string = 'Circuit1';  // TODO:  supprimer cette initialisation
     public selectedBoardImageFile: Promise<string>;
-    public selectedBoardSpacesDefinitions: Map<string, SpaceDefinition> = new Map<string, SpaceDefinition>();
+    //public selectedBoardSpacesDefinitions: Map<string, SpaceDefinition> = new Map<string, SpaceDefinition>();
+    private selectedBoardSpacesDefinitions: BehaviorSubject<Map<string, SpaceDefinition>> = new BehaviorSubject<Map<string, SpaceDefinition>>(new Map());
 
     public db: AngularFireDatabase;
     private spaceDefinitionRef: firebase.database.Reference;
@@ -28,6 +29,14 @@ export class BoardDefinitionService {
         this.db = db;
     }
 
+
+    public getSpaceDefiniitionKeys(): Observable<string[]> {
+        return this.selectedBoardSpacesDefinitions.asObservable().map((map) => {
+            let ret = [];
+            map.forEach((item) => ret.push(item.id));
+            return ret;
+        });
+    }
 
     /**
      * return the list of all tracks as a Promise
@@ -70,7 +79,7 @@ export class BoardDefinitionService {
      */
     public getSpaceDefinitionFromId(id: string) {
 
-        let ret = this.selectedBoardSpacesDefinitions.get(id);
+        let ret = this.selectedBoardSpacesDefinitions.getValue().get(id);
 
         if (!ret) {
             throw (new Error('getSpaceDefinitionFromId(): Id not found'));
@@ -91,7 +100,8 @@ export class BoardDefinitionService {
     public selectBoard(boardKey: string) {
 
         this.selectedBoardKey = boardKey;
-        this.selectedBoardSpacesDefinitions.clear();
+        this.selectedBoardSpacesDefinitions.getValue().clear();
+        this.selectedBoardSpacesDefinitions.next(this.selectedBoardSpacesDefinitions.getValue());
         this.spaceDefinitionRef = this.db.database.ref(`SpaceDefinitions/${this.selectedBoardKey}`);
 
         //TODO: Clean old selection before loading a new one
@@ -131,24 +141,26 @@ export class BoardDefinitionService {
 
     private onAddNewSpaceDefinition(id: string, x: number, y: number, angle?: number): SpaceDefinition {
         let spaceDef: SpaceDefinition = new SpaceDefinitionImpl(id, x, y, angle);
-        spaceDef = new SpaceDefinitionFirebasePercitence(spaceDef, this.spaceDefinitionRef, this);
-        spaceDef = new SpaceDefinitionPaperRepresentation(spaceDef);
+        //spaceDef = new SpaceDefinitionFirebasePercitence(spaceDef, this.spaceDefinitionRef, this);
+        //spaceDef = new SpaceDefinitionPaperRepresentation(spaceDef);
 
-        this.selectedBoardSpacesDefinitions.set(spaceDef.id, spaceDef);
+        this.selectedBoardSpacesDefinitions.getValue().set(spaceDef.id, spaceDef);
+        this.selectedBoardSpacesDefinitions.next(this.selectedBoardSpacesDefinitions.getValue());
 
         return spaceDef;
     }
 
-    public removeSpaceDefinition(spaceDef: SpaceDefinition) {
+    public removeSpaceDefinitionById(id: string) {
 
-        this.spaceDefinitionRef.child('Objects').child(spaceDef.id).remove();
-        this.spaceDefinitionRef.child('Links').child(spaceDef.id).remove();
+        this.spaceDefinitionRef.child('Objects').child(id).remove();
+        this.spaceDefinitionRef.child('Links').child(id).remove();
 
     }
 
     private onRemoveSpaceDefinition(key: string) {
-        this.selectedBoardSpacesDefinitions.get(key).remove();
-        this.selectedBoardSpacesDefinitions.delete(key);
+        this.selectedBoardSpacesDefinitions.getValue().get(key).remove();
+        this.selectedBoardSpacesDefinitions.getValue().delete(key);
+        this.selectedBoardSpacesDefinitions.next(this.selectedBoardSpacesDefinitions.getValue());
     }
 
 

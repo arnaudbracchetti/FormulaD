@@ -1,50 +1,113 @@
 
 
-import { Action, MoveSpaceDefinitionAction, LinkSpaceDefinitionAction, RotateSpaceDefinitionAction, ScrollViewAction } from './actions';
+import { GameElement } from '../tokens/gameelement';
+//import { Action, MoveSpaceDefinitionAction, LinkSpaceDefinitionAction, RotateSpaceDefinitionAction, ScrollViewAction } from '../tokens/space-definition/actions';
 import { BoardDefinitionService } from './board-definition.service';
+import { GameboardComponent } from './gameboard.component';
 import { SpaceDefinition } from './space-definition';
+import { QueryList } from '@angular/core';
 import { Tool, Project, ToolEvent, HitResult, Group } from 'paper';
 
 
 
 export class SpaceCreationTool extends Tool {
 
-    private target: Project;
-    private boardDefinitionService: BoardDefinitionService;
-    private isActionRunning = false;
+    private board: GameboardComponent;
+    private gameElements: QueryList<GameElement>;
+    private pointedItem: GameElement;
+    private isDragRunning = false;
 
-    private action: Action;
-
-
-
-    constructor(target: Project, boardDefinitionService: BoardDefinitionService) {
+    constructor(board: GameboardComponent) {
         super();
-        this.target = target;
-        this.boardDefinitionService = boardDefinitionService;
+        this.board = board;
+        this.gameElements = board.boardElements;
 
-        this.onMouseDown = this.startAction;
-        this.onMouseUp = (evt) => this.endAction(evt);
-        this.onMouseMove = this.doAction;
+        this.onMouseDown = (evt) => this.mouseDown(evt);
+        this.onMouseUp = (evt) => this.mouseUp(evt);
+        this.onMouseMove = (evt) => this.mouseMove(evt);
+        this.onMouseDrag = (evt) => this.mouseDrag(evt);
 
 
         this.onKeyUp = (evt) => {
             switch (evt.key) {
                 case 'a':
-                    this.target.view.zoom *= 1.1;
+                    this.board.zoom(1.1);
                     break;
                 case 'q':
-                    this.target.view.zoom /= 1.1;
+                    this.board.zoom(0.9);
                     break;
                 case 'delete':
-                    for (let item of this.target.getItems({ selected: true, class: Group, name: 'space-group' })) {
-                        this.boardDefinitionService.removeSpaceDefinition(item.data);
-                    }
+                    this.board.removeSelectedElements();
+
 
             }
         };
 
     }
 
+
+
+    public mouseDown(evt: ToolEvent): void {
+
+
+        if (evt.item.data) {  //TODO: A revoir pour une prise en compte correct du click sur fond de carte
+            this.pointedItem = this.board.boardElements.find((item) => item.id === evt.item.data);
+        } else {
+            this.pointedItem = undefined;
+        }
+
+
+    }
+
+    public mouseUp(evt: ToolEvent): void {
+
+        // let dist = evt.downPoint.subtract(evt.point).length;
+
+        if (!this.isDragRunning) {
+            if (this.pointedItem) {
+                this.pointedItem.clicked(evt);
+                this.pointedItem = undefined;
+            } else {
+                this.board.clicked(evt);
+            }
+        } else {
+            if (this.pointedItem) {
+                this.pointedItem.dragStop(evt);
+                this.pointedItem = undefined;
+                this.isDragRunning = false;
+            } else {
+                this.board.dragStop(evt);
+                this.isDragRunning = false;
+            }
+        }
+
+
+    }
+
+    public mouseMove(evt: ToolEvent): void {
+
+
+    }
+
+    public mouseDrag(evt: ToolEvent): void {
+        if (this.pointedItem) {
+            if (this.isDragRunning) {
+                this.pointedItem.drag(evt);
+            } else {
+                this.pointedItem.dragStart(evt);
+                this.isDragRunning = true;
+            }
+        } else {
+            if (this.isDragRunning) {
+                this.board.drag(evt);
+            } else {
+                this.board.dragStart(evt);
+                this.isDragRunning = true;
+            }
+        }
+
+    }
+    /*
     public startAction(evt: ToolEvent): void {
 
         let hit: HitResult = this.target.hitTest(evt.point);
@@ -99,7 +162,7 @@ export class SpaceCreationTool extends Tool {
         if (this.isActionRunning) {
             this.action.doAction(evt.point);
         }
-    }
+    } */
 }
 
 

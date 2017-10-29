@@ -1,12 +1,10 @@
-import { BoardDefinitionService } from './board-definition.service';
-import { SpaceDefinition } from './space-definition';
+import { BoardDefinitionService } from '../../gameboard/board-definition.service';
+import { SpaceDefinition } from '../../gameboard/space-definition';
+import { Action } from '../gameelement';
 import { Point, View, HitResult, Path, Project } from 'paper';
 
 
-export interface Action {
-    doAction(point: Point);
-    endAction(point: Point);
-}
+
 
 export class MoveSpaceDefinitionAction implements Action {
 
@@ -42,28 +40,38 @@ export class LinkSpaceDefinitionAction implements Action {
 
     private target: SpaceDefinition;
     private paperProject: Project;
+    private boardDefinitionService: BoardDefinitionService;
     private link: Path;
 
 
-    constructor(paperProject: Project, target: SpaceDefinition) {
+    constructor(paperProject: Project, target: SpaceDefinition, boardDefinitionService: BoardDefinitionService) {
         this.target = target;
         this.paperProject = paperProject;
+        this.boardDefinitionService = boardDefinitionService;
     }
 
     public doAction(point: Point) {
+        if (this.link) {
+            this.link.remove();
+        }
+
         this.link = new Path([new Point(this.target.x, this.target.y), point]);
-        this.link.removeOnMove();
-        this.link.removeOnUp();
         this.link.strokeColor = 'black';
 
     }
 
     public endAction(point: Point) {
+        this.link.remove();
+        this.link = undefined;
+
         let hit: HitResult = this.paperProject.hitTest(point);
 
         if (hit.item.name === 'space-body') {
-            this.target.addLink(hit.item.parent.data as SpaceDefinition);
+            let linkDestId = hit.item.parent.data;
+            this.target.addLink(this.boardDefinitionService.getSpaceDefinitionFromId(linkDestId));
         }
+
+
     }
 }
 

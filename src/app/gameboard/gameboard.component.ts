@@ -1,5 +1,8 @@
+import { GameElement } from '../tokens/gameelement';
+import { SpaceDefinitionComponent } from '../tokens/space-definition/space-definition.component';
 import { BoardDefinitionService } from './board-definition.service';
-import { Component, OnInit, AfterViewInit, Input } from '@angular/core';
+import { SpaceDefinition } from './space-definition';
+import { Component, OnInit, AfterViewInit, Input, ContentChildren, QueryList } from '@angular/core';
 import { PaperScope, Project, Raster, Tool, Point, ToolEvent, Layer } from 'paper';
 import { SpaceCreationTool } from './tools';
 
@@ -10,6 +13,8 @@ import { SpaceCreationTool } from './tools';
  * the background of the board, and SpaceDefinition.
  *
  * It use Paper library to manager display in a single canevas HTML element
+ *
+ * <fd-space-definition [id]="sd" *ngFor="let sd of spaceDefinitions$ | async"></fd-space-definition>
  */
 
 
@@ -17,6 +22,7 @@ import { SpaceCreationTool } from './tools';
     selector: 'fd-gameboard',
     template: `
     <canvas id='board'></canvas>
+
   `,
     styles: [
         ':host { display : flex}',
@@ -25,7 +31,8 @@ import { SpaceCreationTool } from './tools';
 export class GameboardComponent implements OnInit, AfterViewInit {
 
 
-
+    @ContentChildren(SpaceDefinitionComponent)
+    public boardElements: QueryList<GameElement>;
 
     private scope: PaperScope;
     public board: Project;
@@ -36,6 +43,9 @@ export class GameboardComponent implements OnInit, AfterViewInit {
 
     constructor(boardDefinitionService: BoardDefinitionService) {
         this.boardDefinitionService = boardDefinitionService;
+
+
+
 
     }
 
@@ -52,7 +62,7 @@ export class GameboardComponent implements OnInit, AfterViewInit {
 
         if (!this.board) {
             this.board = new Project('board');
-            new SpaceCreationTool(this.board, this.boardDefinitionService);
+            new SpaceCreationTool(this);
         } else {
             this.board.clear();
         }
@@ -72,10 +82,38 @@ export class GameboardComponent implements OnInit, AfterViewInit {
         });
     }
 
-    public setMoveAndZoomTool() {
-        new SpaceCreationTool(this.board, this.boardDefinitionService).activate();
+
+    public zoom(val: number) {
+        this.board.view.zoom *= val;
     }
 
+    public removeSelectedElements() {
+        let selectedElements: GameElement[] = this.boardElements.filter((item) => item.isSelected());
+
+        for (let item of selectedElements) {
+            this.boardDefinitionService.removeSpaceDefinitionById(item.id);
+        }
+        /* for (let item of this.target.getItems({ selected: true, class: Group, name: 'space-group' })) {
+             this.gameElements.removeSpaceDefinition(item.data);
+         }*/
+
+    }
+
+    public clicked(evt: ToolEvent) {
+        this.boardDefinitionService.addNewSpaceDefinition(evt.point.x, evt.point.y);
+    }
+
+    public dragStart(evt: ToolEvent) {
+
+    }
+
+    public drag(evt: ToolEvent) {
+        this.board.view.scrollBy(evt.downPoint.subtract(evt.point));
+    }
+
+    public dragStop(evt: ToolEvent) {
+
+    }
 
 }
 

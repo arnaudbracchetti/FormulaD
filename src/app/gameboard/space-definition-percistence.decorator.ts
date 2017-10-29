@@ -1,7 +1,8 @@
 
 import { BoardDefinitionService } from './board-definition.service';
-import { SpaceDefinitionDecorator, SpaceDefinition } from './space-definition';
+import { SpaceDefinitionDecorator, SpaceDefinition, SpaceDefinitionChange } from './space-definition';
 import * as firebase from 'firebase';
+import { Observable } from 'rxjs';
 
 
 /**
@@ -10,6 +11,8 @@ import * as firebase from 'firebase';
  */
 
 export class SpaceDefinitionFirebasePercitence extends SpaceDefinitionDecorator {
+
+
 
     public get id(): string { return this.decorated.id; }
 
@@ -36,6 +39,14 @@ export class SpaceDefinitionFirebasePercitence extends SpaceDefinitionDecorator 
 
         this.boardDefinitionService = boardDefService;
         this.initFirebase(dbRef);
+    }
+
+    getChangeObservable(): Observable<SpaceDefinitionChange> {
+        throw new Error('Method not implemented.');
+    }
+
+    touchLink() {
+        throw new Error('Method not implemented.');
     }
 
     setAngle(angle: number) {

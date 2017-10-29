@@ -14,6 +14,11 @@
 
 
 
+import { Subject, Observable } from 'rxjs';
+export interface SpaceDefinitionChange {
+    id: string;
+    type: string;
+}
 
 export abstract class SpaceDefinition {
 
@@ -35,7 +40,10 @@ export abstract class SpaceDefinition {
     abstract setPosition(x: number, y: number);
     abstract addLink(target: SpaceDefinition): boolean;
     abstract removeLink(target: SpaceDefinition);
+    abstract touchLink();
     abstract remove();
+
+    abstract getChangeObservable(): Observable<SpaceDefinitionChange>;
 }
 
 export abstract class SpaceDefinitionDecorator extends SpaceDefinition {
@@ -86,7 +94,7 @@ export class SpaceDefinitionImpl extends SpaceDefinition {
     public successors: SpaceDefinition[] = new Array<SpaceDefinition>();
     public predecessors: SpaceDefinition[] = new Array<SpaceDefinition>();
 
-
+    private changeSubject$: Subject<SpaceDefinitionChange> = new Subject<SpaceDefinitionChange>();
 
     constructor(id: string, x: number, y: number, angle?: number) {
         super();
@@ -102,18 +110,33 @@ export class SpaceDefinitionImpl extends SpaceDefinition {
         }
     }
 
+
+    /**
+     * returns an Observable that notifies each change to the current instance of SpaceDefinition
+     */
+    public getChangeObservable(): Observable<SpaceDefinitionChange> {
+        return this.changeSubject$.asObservable();
+    }
+
+
+
     public setAngle(angle: number) {
         this.angle = angle;
         SpaceDefinitionImpl.defaultOriantation = angle;
+
+        this.changeSubject$.next({ type: 'angle', id: this.id });
     }
 
     public setPosition(x: number, y: number) {
         this.x = x;
         this.y = y;
 
+        this.changeSubject$.next({ type: 'position', id: this.id });
+
     }
 
     public addLink(target: SpaceDefinition): boolean {
+
 
         if (this.successors.includes(target.self) || target.self === this.self) {
             // can't link same SpaceDefintion twice
@@ -123,6 +146,8 @@ export class SpaceDefinitionImpl extends SpaceDefinition {
 
         this.successors.push(target);
         target.predecessors.push(this.self);
+
+        this.changeSubject$.next({ type: 'links', id: this.id });
 
         return true;
     }
@@ -144,6 +169,16 @@ export class SpaceDefinitionImpl extends SpaceDefinition {
             this.successors.splice(index, 1);
         }
 
+        this.changeSubject$.next({ type: 'links', id: this.id });
+
+    }
+
+    /**
+     * Notify observer for a virtual link change.
+     * Used to force some actions like redrawing link in spacedefinition representation.
+     */
+    public touchLink() {
+        this.changeSubject$.next({ type: 'links', id: this.id });
     }
 
     public remove() {

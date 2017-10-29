@@ -1,5 +1,6 @@
-import { SpaceDefinitionDecorator, SpaceDefinition } from './space-definition';
+import { SpaceDefinitionDecorator, SpaceDefinition, SpaceDefinitionChange } from './space-definition';
 import { Group, CompoundPath, Point, Path, CurveLocation, Size } from 'paper';
+import { Observable } from 'rxjs';
 
 /**
  * Decorator class to add a screen representation for a SpaceDefinition
@@ -7,6 +8,7 @@ import { Group, CompoundPath, Point, Path, CurveLocation, Size } from 'paper';
  */
 
 export class SpaceDefinitionPaperRepresentation extends SpaceDefinitionDecorator {
+
 
 
     private representation: Group = new Group();
@@ -41,6 +43,14 @@ export class SpaceDefinitionPaperRepresentation extends SpaceDefinitionDecorator
         this.initRepresentation();
         this.drawRepresentation();
 
+    }
+
+    getChangeObservable(): Observable<SpaceDefinitionChange> {
+        throw new Error('Method not implemented.');
+    }
+
+    touchLink() {
+        throw new Error('Method not implemented.');
     }
 
     setAngle(angle: number) {
