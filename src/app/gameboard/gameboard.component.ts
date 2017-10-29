@@ -14,7 +14,6 @@ import { SpaceCreationTool } from './tools';
  *
  * It use Paper library to manager display in a single canevas HTML element
  *
- * <fd-space-definition [id]="sd" *ngFor="let sd of spaceDefinitions$ | async"></fd-space-definition>
  */
 
 
@@ -75,10 +74,6 @@ export class GameboardComponent implements OnInit, AfterViewInit {
             this.board.layers['background'].activate();
             const raster = new Raster(fileUrl);
             this.board.layers['foreground'].activate();
-
-
-            //this.board.view.draw();
-
         });
     }
 
@@ -93,10 +88,6 @@ export class GameboardComponent implements OnInit, AfterViewInit {
         for (let item of selectedElements) {
             this.boardDefinitionService.removeSpaceDefinitionById(item.id);
         }
-        /* for (let item of this.target.getItems({ selected: true, class: Group, name: 'space-group' })) {
-             this.gameElements.removeSpaceDefinition(item.data);
-         }*/
-
     }
 
     public clicked(evt: ToolEvent) {

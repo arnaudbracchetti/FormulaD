@@ -107,62 +107,6 @@ export class SpaceCreationTool extends Tool {
         }
 
     }
-    /*
-    public startAction(evt: ToolEvent): void {
-
-        let hit: HitResult = this.target.hitTest(evt.point);
-
-        if (!hit || !hit.item) { return; }  // no element under mouse pointer
-
-        switch (hit.item.name) {
-            case 'space-handle':
-                this.action = new MoveSpaceDefinitionAction(hit.item.parent.data as SpaceDefinition);
-                break;
-            case 'space-body':
-                if (evt.modifiers.shift) {
-                    hit.item.parent.selected = true;
-                } else {
-                    this.action = new LinkSpaceDefinitionAction(this.target, hit.item.parent.data as SpaceDefinition);
-                }
-                break;
-            case 'space-direction':
-                if (evt.modifiers.shift) {
-                    hit.item.parent.selected = true;
-                } else {
-                    this.action = new RotateSpaceDefinitionAction(hit.item.parent.data as SpaceDefinition);
-                }
-                break;
-            default:
-                if (evt.modifiers.shift) {
-                    evt.item.project.deselectAll();
-                } else {
-                    this.action = new ScrollViewAction(this.target.view, evt.point, this.boardDefinitionService);
-                }
-
-
-        }
-
-        this.isActionRunning = true;
-
-
-    }
-
-    public endAction(evt: ToolEvent) {
-
-        if (this.action) {
-            this.action.endAction(evt.point);
-            this.action = undefined;
-        }
-
-        this.isActionRunning = false;
-    }
-
-    public doAction(evt: ToolEvent) {
-
-        if (this.isActionRunning) {
-            this.action.doAction(evt.point);
-        }
-    } */
 }
 
 

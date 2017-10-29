@@ -5,7 +5,9 @@ import { Point, View, HitResult, Path, Project } from 'paper';
 
 
 
-
+/**
+ * Action used to move a space definition
+ */
 export class MoveSpaceDefinitionAction implements Action {
 
     private target: SpaceDefinition;
@@ -21,6 +23,11 @@ export class MoveSpaceDefinitionAction implements Action {
     public endAction(point: Point) { }
 }
 
+
+
+/**
+ * Action used to rotate a space definition
+ */
 export class RotateSpaceDefinitionAction implements Action {
 
     private target: SpaceDefinition;
@@ -36,6 +43,11 @@ export class RotateSpaceDefinitionAction implements Action {
     public endAction(point: Point) { }
 }
 
+
+
+/**
+ * Action used to add link between space definition
+ */
 export class LinkSpaceDefinitionAction implements Action {
 
     private target: SpaceDefinition;
@@ -76,30 +88,5 @@ export class LinkSpaceDefinitionAction implements Action {
 }
 
 
-export class ScrollViewAction implements Action {
 
-    private isScrolled = false;
-    private target: View;
-    private boardDefinitionService: BoardDefinitionService;
-    private startingPoint: Point;
-
-    constructor(target: View, startingPoint: Point, boardDefinitionService: BoardDefinitionService) {
-        this.target = target;
-        this.boardDefinitionService = boardDefinitionService;
-        this.startingPoint = startingPoint;
-    }
-
-    public doAction(point: Point) {
-        this.target.scrollBy(this.startingPoint.subtract(point));
-        this.isScrolled = true;
-    }
-
-    public endAction(point: Point) {
-        if (!this.isScrolled) {
-            this.boardDefinitionService.addNewSpaceDefinition(point.x, point.y);
-        }
-
-    }
-
-}
 

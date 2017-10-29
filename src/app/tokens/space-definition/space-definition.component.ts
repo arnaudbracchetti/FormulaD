@@ -13,7 +13,7 @@ import { Observable, Subscription } from 'rxjs';
 
 @Component({
     selector: 'fd-space-definition',
-    template: '',
+    template: '',  // no template, view is managed in a canvas with PaperJs
 })
 export class SpaceDefinitionComponent extends GameElement implements OnInit, OnDestroy {
 
@@ -28,13 +28,7 @@ export class SpaceDefinitionComponent extends GameElement implements OnInit, OnD
     private change$: Observable<SpaceDefinitionChange>;
     private changeSubscription: Subscription;
 
-
     public links: CompoundPath[] = new Array<CompoundPath>();
-
-    get x(): number { return this.data.x; }
-    get y(): number { return this.data.y; }
-    get angle(): number { return this.data.angle; }
-
 
 
     constructor(service: BoardDefinitionService) {
@@ -51,7 +45,7 @@ export class SpaceDefinitionComponent extends GameElement implements OnInit, OnD
 
         // suscribe to data modification
         this.change$ = this.data.getChangeObservable();
-        this.changeSubscription = this.change$.subscribe(() => this.onDataChange());
+        this.changeSubscription = this.change$.subscribe(() => this.drawRepresentation());
 
         // init view
         this.representation.data = this.id;
@@ -65,14 +59,15 @@ export class SpaceDefinitionComponent extends GameElement implements OnInit, OnD
 
     }
 
-    public onDataChange() {
-        this.drawRepresentation();
-    }
 
-    clicked(evt: ToolEvent): void {
+    public clicked(evt: ToolEvent): void {
         this.representation.selected = !this.representation.selected;
     }
 
+    /**
+     * This fonction define Action to apply on a drag mouse event. Choice are made by the zone
+     * under the mouse point when the drag event begin.
+     */
     public getAction(evt: ToolEvent): Action {
         let hit: HitResult = this.representation.hitTest(evt.point, { fill: true });
         if (hit) {
@@ -96,12 +91,17 @@ export class SpaceDefinitionComponent extends GameElement implements OnInit, OnD
 
 
 
+    /***********************************************
+     * Fonction below manage the view with PaperJs
+     ***********************************************/
+
+
     public drawRepresentation() {
 
         // draw body
-        this.representation.position = new Point(this.x, this.y);
-        this.representation.rotate(this.angle - this.oldAngle);
-        this.oldAngle = this.angle;
+        this.representation.position = new Point(this.data.x, this.data.y);
+        this.representation.rotate(this.data.angle - this.oldAngle);
+        this.oldAngle = this.data.angle;
 
         // draw links
         this.drawLinks();
