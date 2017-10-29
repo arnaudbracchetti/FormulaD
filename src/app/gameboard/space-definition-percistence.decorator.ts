@@ -42,11 +42,11 @@ export class SpaceDefinitionFirebasePercitence extends SpaceDefinitionDecorator 
     }
 
     getChangeObservable(): Observable<SpaceDefinitionChange> {
-        throw new Error('Method not implemented.');
+        return this.decorated.getChangeObservable();
     }
 
     touchLink() {
-        throw new Error('Method not implemented.');
+        this.decorated.touchLink();
     }
 
     setAngle(angle: number) {

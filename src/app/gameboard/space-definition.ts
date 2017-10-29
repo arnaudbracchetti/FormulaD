@@ -144,7 +144,7 @@ export class SpaceDefinitionImpl extends SpaceDefinition {
             return false;
         }
 
-        this.successors.push(target);
+        this.successors.push(target.self);
         target.predecessors.push(this.self);
 
         this.changeSubject$.next({ type: 'links', id: this.id });

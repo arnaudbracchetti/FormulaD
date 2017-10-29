@@ -45,7 +45,7 @@ export class SpaceDefinitionComponent extends GameElement implements OnInit, OnD
 
         // suscribe to data modification
         this.change$ = this.data.getChangeObservable();
-        this.changeSubscription = this.change$.subscribe(() => this.drawRepresentation());
+        this.changeSubscription = this.change$.subscribe((action) => this.drawRepresentation(action.type));
 
         // init view
         this.representation.data = this.id;
@@ -96,20 +96,24 @@ export class SpaceDefinitionComponent extends GameElement implements OnInit, OnD
      ***********************************************/
 
 
-    public drawRepresentation() {
+    public drawRepresentation(partialDraw?: string) {
 
         // draw body
-        this.representation.position = new Point(this.data.x, this.data.y);
-        this.representation.rotate(this.data.angle - this.oldAngle);
-        this.oldAngle = this.data.angle;
+        if (!partialDraw || partialDraw === 'position' || partialDraw === 'angle') {
+            this.representation.position = new Point(this.data.x, this.data.y);
+            this.representation.rotate(this.data.angle - this.oldAngle);
+            this.oldAngle = this.data.angle;
 
-        // draw links
-        this.drawLinks();
-        for (let predecessor of this.data.predecessors) {
-            predecessor.touchLink();
+            this.drawLinks();
+            for (let predecessor of this.data.predecessors) {
+                predecessor.touchLink();
+            }
         }
 
-
+        // draw only successor links
+        if (partialDraw && partialDraw === 'links') {
+            this.drawLinks();
+        }
     }
 
     private initRepresentation() {

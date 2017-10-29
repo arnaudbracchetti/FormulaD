@@ -2,6 +2,7 @@
 import { AngularFireDatabase } from 'angularfire2/database';
 import * as firebase from 'firebase';
 import { SpaceDefinitionImpl, SpaceDefinition } from './space-definition';
+import { SpaceDefinitionFirebasePercitence } from './space-definition-percistence.decorator';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 
@@ -62,7 +63,7 @@ export class BoardDefinitionService {
 
 
                 }
-                console.log(list);
+
                 resolve(list);
             });
         });
@@ -141,7 +142,7 @@ export class BoardDefinitionService {
 
     private onAddNewSpaceDefinition(id: string, x: number, y: number, angle?: number): SpaceDefinition {
         let spaceDef: SpaceDefinition = new SpaceDefinitionImpl(id, x, y, angle);
-        //spaceDef = new SpaceDefinitionFirebasePercitence(spaceDef, this.spaceDefinitionRef, this);
+        spaceDef = new SpaceDefinitionFirebasePercitence(spaceDef, this.spaceDefinitionRef, this);
         //spaceDef = new SpaceDefinitionPaperRepresentation(spaceDef);
 
         this.selectedBoardSpacesDefinitions.getValue().set(spaceDef.id, spaceDef);
