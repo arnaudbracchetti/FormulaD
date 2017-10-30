@@ -1,7 +1,9 @@
 
 <section id='game-board'>
-	<fd-gameboard #gameboard>
-		<fd-space-definition [id]="key" *ngFor="let key of spaceDefinitionKeys$ | async"></fd-space-definition>
+	<fd-gameboard #gameboard
+		(delete)="removeSelectedElements()"
+		(boardClick)="crateNewSpaceDefinition($event)">
+			<fd-space-definition [id]="key" *ngFor="let key of spaceDefinitionKeys$ | async"></fd-space-definition>
 	</fd-gameboard>
 
 </section>

@@ -1,5 +1,5 @@
 
-import { BoardDefinitionService } from './board-definition.service';
+import { BoardDefinitionService } from '../board-definition.service';
 import { SpaceDefinitionDecorator, SpaceDefinition, SpaceDefinitionChange } from './space-definition';
 import * as firebase from 'firebase';
 import { Observable } from 'rxjs';

@@ -1,5 +1,5 @@
-import { BoardDefinitionService } from '../../gameboard/board-definition.service';
-import { SpaceDefinition } from '../../gameboard/space-definition';
+import { BoardDefinitionService } from '../../board-definition/board-definition.service';
+import { SpaceDefinition } from '../../board-definition/model/space-definition';
 import { Action } from '../gameelement';
 import { Point, View, HitResult, Path, Project } from 'paper';
 

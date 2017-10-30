@@ -1,6 +1,8 @@
-import { BoardDefinitionService } from '../gameboard/board-definition.service';
+import { BoardDefinitionService } from './board-definition.service';
 import { GameboardComponent } from '../gameboard/gameboard.component';
-import { Component, OnInit, AfterViewInit, ViewChild, Input } from '@angular/core';
+import { GameElement } from '../tokens/gameelement';
+import { SpaceDefinitionComponent } from '../tokens/space-definition/space-definition.component';
+import { Component, OnInit, AfterViewInit, ViewChild, Input, QueryList, ViewChildren } from '@angular/core';
 import { Router, ActivatedRoute, ParamMap } from '@angular/router';
 import { Observable } from 'rxjs';
 
@@ -12,8 +14,11 @@ import { Observable } from 'rxjs';
 export class BoardDefinitionComponent implements OnInit, AfterViewInit {
 
 
-    @ViewChild('gameboard')
-    private gameBoard: GameboardComponent;
+    //@ViewChild('gameboard')
+    //private gameBoard: GameboardComponent;
+
+    @ViewChildren(SpaceDefinitionComponent)
+    private spaceDefinitionComponents: QueryList<SpaceDefinitionComponent>;
 
     public boardDefinitionService: BoardDefinitionService;
     public spaceDefinitionKeys$: Observable<string[]>;
@@ -38,6 +43,17 @@ export class BoardDefinitionComponent implements OnInit, AfterViewInit {
 
     }
 
+    public removeSelectedElements() {
+        let selectedElements: GameElement[] = this.spaceDefinitionComponents.filter((item) => item.isSelected());
+
+        for (let item of selectedElements) {
+            this.boardDefinitionService.removeSpaceDefinitionById(item.id);
+        }
+    }
+
+    public crateNewSpaceDefinition(evt) {
+        this.boardDefinitionService.addNewSpaceDefinition(evt.x, evt.y);
+    }
 
 
 }

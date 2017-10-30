@@ -1,8 +1,8 @@
 
 import { AngularFireDatabase } from 'angularfire2/database';
 import * as firebase from 'firebase';
-import { SpaceDefinitionImpl, SpaceDefinition } from './space-definition';
-import { SpaceDefinitionFirebasePercitence } from './space-definition-percistence.decorator';
+import { SpaceDefinitionImpl, SpaceDefinition } from './model/space-definition';
+import { SpaceDefinitionFirebasePercitence } from './model/space-definition-percistence.decorator';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 
@@ -90,6 +90,14 @@ export class BoardDefinitionService {
 
     }
 
+    /*
+        public getSelectedSpaceDefinitions(): SpaceDefinition[] {
+            let ret: SpaceDefinition[] = [];
+            this.selectedBoardSpacesDefinitions.getValue().forEach((value, key) => {
+                if(value..isSelected())
+            });
+        }
+    */
 
     /**
      * Initialize game board information from database. This methode should be called prior

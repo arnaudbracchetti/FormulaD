@@ -1,4 +1,4 @@
-import { BoardDefinitionService, BoardDefinition } from '../gameboard/board-definition.service';
+import { BoardDefinitionService, BoardDefinition } from '../board-definition/board-definition.service';
 import { Component, OnInit } from '@angular/core';
 
 @Component({

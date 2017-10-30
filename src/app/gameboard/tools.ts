@@ -2,9 +2,9 @@
 
 import { GameElement } from '../tokens/gameelement';
 //import { Action, MoveSpaceDefinitionAction, LinkSpaceDefinitionAction, RotateSpaceDefinitionAction, ScrollViewAction } from '../tokens/space-definition/actions';
-import { BoardDefinitionService } from './board-definition.service';
+import { BoardDefinitionService } from '../board-definition/board-definition.service';
 import { GameboardComponent } from './gameboard.component';
-import { SpaceDefinition } from './space-definition';
+import { SpaceDefinition } from '../board-definition/model/space-definition';
 import { QueryList } from '@angular/core';
 import { Tool, Project, ToolEvent, HitResult, Group } from 'paper';
 
@@ -37,7 +37,7 @@ export class SpaceCreationTool extends Tool {
                     this.board.zoom(0.9);
                     break;
                 case 'delete':
-                    this.board.removeSelectedElements();
+                    this.board.deletePressed();
 
 
             }

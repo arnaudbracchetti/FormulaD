@@ -1,8 +1,9 @@
+
+import { BoardDefinitionService } from '../board-definition/board-definition.service';
 import { GameElement } from '../tokens/gameelement';
 import { SpaceDefinitionComponent } from '../tokens/space-definition/space-definition.component';
-import { BoardDefinitionService } from './board-definition.service';
-import { SpaceDefinition } from './space-definition';
-import { Component, OnInit, AfterViewInit, Input, ContentChildren, QueryList } from '@angular/core';
+import { SpaceDefinition } from '../board-definition/model/space-definition';
+import { Component, OnInit, AfterViewInit, Input, ContentChildren, QueryList, Output, EventEmitter } from '@angular/core';
 import { PaperScope, Project, Raster, Tool, Point, ToolEvent, Layer } from 'paper';
 import { SpaceCreationTool } from './tools';
 
@@ -10,7 +11,7 @@ import { SpaceCreationTool } from './tools';
 
 /**
  * This Angular component implement the gameboard. It manage the bitmap presenting
- * the background of the board, and SpaceDefinition.
+ * the background of the board, and notif partent whith somme events.
  *
  * It use Paper library to manager display in a single canevas HTML element
  *
@@ -32,6 +33,10 @@ export class GameboardComponent implements OnInit, AfterViewInit {
 
     @ContentChildren(SpaceDefinitionComponent)
     public boardElements: QueryList<GameElement>;
+
+    @Output() private boardClick: EventEmitter<{ x: number, y: number }> = new EventEmitter<{ x: number, y: number }>();
+    @Output() private delete = new EventEmitter();
+
 
     private scope: PaperScope;
     public board: Project;
@@ -82,16 +87,19 @@ export class GameboardComponent implements OnInit, AfterViewInit {
         this.board.view.zoom *= val;
     }
 
-    public removeSelectedElements() {
-        let selectedElements: GameElement[] = this.boardElements.filter((item) => item.isSelected());
 
-        for (let item of selectedElements) {
-            this.boardDefinitionService.removeSpaceDefinitionById(item.id);
+
+
+    public clicked(evt: ToolEvent) {
+        if (evt.modifiers.command) {
+            this.boardClick.emit({ x: evt.point.x, y: evt.point.y });
+        } else {
+            this.board.deselectAll();
         }
     }
 
-    public clicked(evt: ToolEvent) {
-        this.boardDefinitionService.addNewSpaceDefinition(evt.point.x, evt.point.y);
+    public deletePressed() {
+        this.delete.emit();
     }
 
     public dragStart(evt: ToolEvent) {

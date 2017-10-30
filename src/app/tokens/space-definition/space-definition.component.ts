@@ -1,5 +1,5 @@
-import { BoardDefinitionService } from '../../gameboard/board-definition.service';
-import { SpaceDefinition, SpaceDefinitionChange } from '../../gameboard/space-definition';
+import { BoardDefinitionService } from '../../board-definition/board-definition.service';
+import { SpaceDefinition, SpaceDefinitionChange } from '../../board-definition/model/space-definition';
 import { GameElement, Action } from '../gameelement';
 import { MoveSpaceDefinitionAction, RotateSpaceDefinitionAction, LinkSpaceDefinitionAction } from './actions';
 import { Component, OnInit, OnDestroy, Input } from '@angular/core';

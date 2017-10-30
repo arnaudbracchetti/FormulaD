@@ -10,7 +10,7 @@ import { environment } from '../environments/environment';
 import { AppComponent } from './app.component';
 import { GameboardComponent } from './gameboard/gameboard.component';
 import { BoardDefinitionComponent } from './board-definition/board-definition.component';
-import { BoardDefinitionService } from './gameboard/board-definition.service';
+import { BoardDefinitionService } from './board-definition/board-definition.service';
 import { TrackSelectionComponent } from './track-selection/track-selection.component';
 
 import { routes } from './routes-definition';
