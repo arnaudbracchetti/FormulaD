@@ -24,7 +24,7 @@ export class SpaceDefinitionComponent extends GameElement implements OnInit, OnD
     private boardDefinitionService: BoardDefinitionService;
     private representation: Group = new Group();
     private oldAngle: number = 0;
-    private data: SpaceDefinition;
+    public data: SpaceDefinition;
     private change$: Observable<SpaceDefinitionChange>;
     private changeSubscription: Subscription;
 
@@ -169,13 +169,6 @@ export class SpaceDefinitionComponent extends GameElement implements OnInit, OnD
                 new Path([destination.add(arrow.rotate(135)), destination, destination.add(arrow.rotate(-135))])
             ]);
 
-            //link.strokeColor = '#FFC300';
-
-            console.group(this.data.id + '(' + this.data.successors.length + ')');
-            console.log(this.data.leftLink());
-            console.log(this.data.straightLink());
-            console.log(this.data.rightLink());
-            console.groupEnd();
 
             if (successor === this.data.straightLink()) {
                 link.strokeColor = 'blue';

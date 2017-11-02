@@ -1,4 +1,9 @@
 
+<section class="tile is-5 dialog-position" *ngIf="getSelectedSpaceDefinition().length === 1">
+	<fd-space-definition-form [model]="getSelectedSpaceDefinition()[0]"></fd-space-definition-form>
+	
+</section>
+
 <section id='game-board'>
 	<fd-gameboard #gameboard
 		(delete)="removeSelectedElements()"

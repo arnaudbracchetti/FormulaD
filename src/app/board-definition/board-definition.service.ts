@@ -120,7 +120,7 @@ export class BoardDefinitionService {
             switch (action.type) {
                 case 'child_added':
                     let val: SpaceDefinition = action.payload.val();
-                    this.onAddNewSpaceDefinition(action.key, val.x, val.y, val.angle);
+                    this.onAddNewSpaceDefinition(action.key, val.x, val.y, val.angle, val.isStartPosition);
                     break;
                 case 'child_removed':
                     this.onRemoveSpaceDefinition(action.key);
@@ -148,8 +148,8 @@ export class BoardDefinitionService {
 
     }
 
-    private onAddNewSpaceDefinition(id: string, x: number, y: number, angle?: number): SpaceDefinition {
-        let spaceDef: SpaceDefinition = new SpaceDefinitionImpl(id, x, y, angle);
+    private onAddNewSpaceDefinition(id: string, x: number, y: number, angle?: number, isStartPosition?: boolean): SpaceDefinition {
+        let spaceDef: SpaceDefinition = new SpaceDefinitionImpl(id, x, y, angle, isStartPosition);
         spaceDef = new SpaceDefinitionFirebasePercitence(spaceDef, this.spaceDefinitionRef, this);
         //spaceDef = new SpaceDefinitionPaperRepresentation(spaceDef);
 

@@ -1,0 +1,64 @@
+
+
+<div class="box is-size-3">
+	<form>
+	
+<!-- 	Static data (can't be modified by the form) -->
+		<div class="field">
+			<label class="label is-small">id</label>
+			<div class="control ">
+				<input class="input is-small" type="text" [value]="model?.id" disabled>
+			</div>
+		</div>
+		<div class="field is-horizontal">
+			<div class="field-label is-small">
+				<label class="label">(X,Y)</label>
+			</div>
+			<div class="field-body is-small">
+				<div class="field">
+					<div class="control ">
+						<input class="input is-small" type="text" size="4" [value]="model?.x" disabled>
+					</div>
+				</div>
+				<div class="field">
+					<div class="control ">
+						<input class="input is-small" type="text" size="4" [value]="model?.y" disabled>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="field is-horizontal">
+			<div class="field-label is-small">
+				<label class="label">Angle</label>
+			</div>
+			<div class="field-body is-small">
+				<div class="field">
+					<div class="control">
+						<input class="input is-small" type="text" [value]="model?.angle" disabled>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+<!-- 		Dynamic data (mofiable in the form) -->
+		
+<!-- 		Starting position (is this space definition is a starting position for the race) -->
+		<div class="field is-small">
+  			<div class="control">
+    			<label class="checkbox is-small">
+      				<input class="checkbox is-small" type="checkbox" name="isStartPosition" [(ngModel)]="model.isStartPosition">
+      					Track start position
+   				 </label>
+  			</div>
+		</div>
+		
+		
+		
+		
+	</form>
+</div>
+
+
+
+
+

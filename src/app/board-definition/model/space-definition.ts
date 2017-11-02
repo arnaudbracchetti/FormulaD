@@ -31,6 +31,7 @@ export abstract class SpaceDefinition {
     abstract y: number;
     abstract predecessors: SpaceDefinition[];
     abstract successors: SpaceDefinition[];
+    abstract isStartPosition: boolean;
 
     constructor() {
         this.self = this;
@@ -92,6 +93,7 @@ export class SpaceDefinitionImpl extends SpaceDefinition {
     public angle: number;
     public x: number;
     public y: number;
+    public isStartPosition: boolean;
     public self: SpaceDefinition;
 
 
@@ -103,7 +105,7 @@ export class SpaceDefinitionImpl extends SpaceDefinition {
     private leftIndex: number;
     private rightIndex: number;
 
-    constructor(id: string, x: number, y: number, angle?: number) {
+    constructor(id: string, x: number, y: number, angle?: number, isStartPosition?: boolean) {
         super();
 
         this.id = id;
@@ -114,6 +116,12 @@ export class SpaceDefinitionImpl extends SpaceDefinition {
             this.angle = angle;
         } else {
             this.angle = SpaceDefinitionImpl.defaultOriantation;
+        }
+
+        if (isStartPosition) {
+            this.isStartPosition = isStartPosition;
+        } else {
+            this.isStartPosition = false;
         }
 
         this.computeLinkOriantation();

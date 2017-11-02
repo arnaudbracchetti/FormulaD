@@ -1,0 +1,9 @@
+
+
+.dialog-position {
+	position : fixed;
+	top : 100px;
+	left : $container-offset;
+	
+	opacity: 0.95;
+}

@@ -2,6 +2,7 @@ import { BoardDefinitionService } from './board-definition.service';
 import { GameboardComponent } from '../gameboard/gameboard.component';
 import { GameElement } from '../tokens/gameelement';
 import { SpaceDefinitionComponent } from '../tokens/space-definition/space-definition.component';
+import { SpaceDefinition } from './model/space-definition';
 import { Component, OnInit, AfterViewInit, ViewChild, Input, QueryList, ViewChildren } from '@angular/core';
 import { Router, ActivatedRoute, ParamMap } from '@angular/router';
 import { Observable } from 'rxjs';
@@ -40,6 +41,16 @@ export class BoardDefinitionComponent implements OnInit, AfterViewInit {
     }
 
     ngAfterViewInit(): void {
+
+    }
+
+
+    public getSelectedSpaceDefinition(): SpaceDefinition[] {
+        if (this.spaceDefinitionComponents) {
+            return this.spaceDefinitionComponents.filter((item) => item.isSelected()).map((item) => item.data);
+        } else {
+            return [];
+        }
 
     }
 

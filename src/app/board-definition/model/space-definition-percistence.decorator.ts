@@ -18,16 +18,25 @@ export class SpaceDefinitionFirebasePercitence extends SpaceDefinitionDecorator 
     public get id(): string { return this.decorated.id; }
 
     public get x(): number { return this.decorated.x; }
-    public set x(val: number) { this.decorated.x = val; }
+    //public set x(val: number) { this.decorated.x = val; }
 
     public get y(): number { return this.decorated.y; }
-    public set y(val: number) { this.decorated.y = val; }
+    //public set y(val: number) { this.decorated.y = val; }
 
     public get angle(): number { return this.decorated.angle; }
 
     public get successors(): SpaceDefinition[] { return this.decorated.successors; }
     public get predecessors(): SpaceDefinition[] { return this.decorated.predecessors; }
 
+    public get isStartPosition(): boolean { return this.decorated.isStartPosition; }
+    public set isStartPosition(val: boolean) {
+        let changed = val !== this.isStartPosition;
+
+        this.decorated.isStartPosition = val;
+        if (changed && this.autoSave) {
+            this.save();
+        }
+    }
 
     private dbSpaceDefinitionObjectRef: firebase.database.Reference;
     private dbSpaceDefinitionLinkRef: firebase.database.Reference;
@@ -132,7 +141,8 @@ export class SpaceDefinitionFirebasePercitence extends SpaceDefinitionDecorator 
                 {
                     x: this.x,
                     y: this.y,
-                    angle: this.angle
+                    angle: this.angle,
+                    isStartPosition: this.isStartPosition
                 }), 1000);
 
     }
@@ -156,6 +166,12 @@ export class SpaceDefinitionFirebasePercitence extends SpaceDefinitionDecorator 
 
             if (val.angle) {
                 this.self.setAngle(val.angle);
+            }
+
+            if (val.isStartPosition) {
+                this.isStartPosition = val.isStartPosition;
+            } else {
+                this.isStartPosition = false;
             }
 
             this.autoSave = true;

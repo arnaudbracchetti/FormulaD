@@ -11,10 +11,12 @@ import { AppComponent } from './app.component';
 import { GameboardComponent } from './gameboard/gameboard.component';
 import { BoardDefinitionComponent } from './board-definition/board-definition.component';
 import { BoardDefinitionService } from './board-definition/board-definition.service';
+import { SpaceDefinitionFormComponent } from './board-definition/space-definition-form/space-definition-form.component';
 import { TrackSelectionComponent } from './track-selection/track-selection.component';
 
 import { routes } from './routes-definition';
 import { SpaceDefinitionComponent } from './tokens/space-definition/space-definition.component';
+import { FormsModule } from '@angular/forms';
 
 @NgModule({
     declarations: [
@@ -22,10 +24,12 @@ import { SpaceDefinitionComponent } from './tokens/space-definition/space-defini
         GameboardComponent,
         BoardDefinitionComponent,
         TrackSelectionComponent,
-        SpaceDefinitionComponent
+        SpaceDefinitionComponent,
+        SpaceDefinitionFormComponent
     ],
     imports: [
         BrowserModule,
+        FormsModule,
         AngularFireModule.initializeApp(environment.firebase),
         AngularFireDatabaseModule,
         RouterModule.forRoot(
