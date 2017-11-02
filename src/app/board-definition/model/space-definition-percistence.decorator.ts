@@ -14,6 +14,7 @@ export class SpaceDefinitionFirebasePercitence extends SpaceDefinitionDecorator 
 
 
 
+
     public get id(): string { return this.decorated.id; }
 
     public get x(): number { return this.decorated.x; }
@@ -87,6 +88,23 @@ export class SpaceDefinitionFirebasePercitence extends SpaceDefinitionDecorator 
         }
     }
 
+    public straightLink(): SpaceDefinition {
+        return this.decorated.straightLink();
+    }
+
+
+    public leftLink(): SpaceDefinition {
+        return this.decorated.leftLink();
+    }
+
+
+    public rightLink(): SpaceDefinition {
+        return this.decorated.rightLink();
+    }
+
+    public computeLinkOriantation() {
+        return this.decorated.computeLinkOriantation();
+    }
 
     remove() {
         this.decorated.remove();

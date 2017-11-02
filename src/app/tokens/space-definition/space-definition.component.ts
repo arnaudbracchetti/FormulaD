@@ -98,7 +98,7 @@ export class SpaceDefinitionComponent extends GameElement implements OnInit, OnD
 
     public drawRepresentation(partialDraw?: string) {
 
-        // draw body
+        // draw all
         if (!partialDraw || partialDraw === 'position' || partialDraw === 'angle') {
             this.representation.position = new Point(this.data.x, this.data.y);
             this.representation.rotate(this.data.angle - this.oldAngle);
@@ -169,7 +169,24 @@ export class SpaceDefinitionComponent extends GameElement implements OnInit, OnD
                 new Path([destination.add(arrow.rotate(135)), destination, destination.add(arrow.rotate(-135))])
             ]);
 
-            link.strokeColor = '#FFC300';
+            //link.strokeColor = '#FFC300';
+
+            console.group(this.data.id + '(' + this.data.successors.length + ')');
+            console.log(this.data.leftLink());
+            console.log(this.data.straightLink());
+            console.log(this.data.rightLink());
+            console.groupEnd();
+
+            if (successor === this.data.straightLink()) {
+                link.strokeColor = 'blue';
+            } else if (successor === this.data.rightLink()) {
+                link.strokeColor = 'green';
+            } else if (successor === this.data.leftLink()) {
+                link.strokeColor = 'red';
+            } else {
+                link.strokeColor = 'black';
+            }
+
             link.strokeWidth = 4;
 
 

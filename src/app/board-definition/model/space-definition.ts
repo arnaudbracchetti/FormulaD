@@ -42,8 +42,12 @@ export abstract class SpaceDefinition {
     abstract removeLink(target: SpaceDefinition);
     abstract touchLink();
     abstract remove();
+    abstract straightLink(): SpaceDefinition;
+    abstract leftLink(): SpaceDefinition;
+    abstract rightLink(): SpaceDefinition;
 
     abstract getChangeObservable(): Observable<SpaceDefinitionChange>;
+    abstract computeLinkOriantation();
 }
 
 export abstract class SpaceDefinitionDecorator extends SpaceDefinition {
@@ -95,6 +99,9 @@ export class SpaceDefinitionImpl extends SpaceDefinition {
     public predecessors: SpaceDefinition[] = new Array<SpaceDefinition>();
 
     private changeSubject$: Subject<SpaceDefinitionChange> = new Subject<SpaceDefinitionChange>();
+    private straightIndex: number;
+    private leftIndex: number;
+    private rightIndex: number;
 
     constructor(id: string, x: number, y: number, angle?: number) {
         super();
@@ -108,6 +115,8 @@ export class SpaceDefinitionImpl extends SpaceDefinition {
         } else {
             this.angle = SpaceDefinitionImpl.defaultOriantation;
         }
+
+        this.computeLinkOriantation();
     }
 
 
@@ -123,6 +132,7 @@ export class SpaceDefinitionImpl extends SpaceDefinition {
     public setAngle(angle: number) {
         this.angle = angle;
         SpaceDefinitionImpl.defaultOriantation = angle;
+        this.computeLinkOriantation();
 
         this.changeSubject$.next({ type: 'angle', id: this.id });
     }
@@ -130,6 +140,10 @@ export class SpaceDefinitionImpl extends SpaceDefinition {
     public setPosition(x: number, y: number) {
         this.x = x;
         this.y = y;
+
+        this.computeLinkOriantation();
+
+        this.predecessors.forEach((item) => { item.computeLinkOriantation(); });
 
         this.changeSubject$.next({ type: 'position', id: this.id });
 
@@ -144,8 +158,14 @@ export class SpaceDefinitionImpl extends SpaceDefinition {
             return false;
         }
 
+        if (this.successors.length === 3) { // we can't have more than 3 link
+            this.removeLink(this.successors[0]);
+        }
+
         this.successors.push(target.self);
         target.predecessors.push(this.self);
+
+        this.computeLinkOriantation();
 
         this.changeSubject$.next({ type: 'links', id: this.id });
 
@@ -169,9 +189,37 @@ export class SpaceDefinitionImpl extends SpaceDefinition {
             this.successors.splice(index, 1);
         }
 
+        this.computeLinkOriantation();
         this.changeSubject$.next({ type: 'links', id: this.id });
 
     }
+
+    public straightLink(): SpaceDefinition {
+        if (this.straightIndex !== undefined) {
+            return this.successors[this.straightIndex];
+        } else {
+            return undefined;
+        }
+
+    }
+
+    public leftLink(): SpaceDefinition {
+        if (this.leftIndex !== undefined) {
+            return this.successors[this.leftIndex];
+        } else {
+            return undefined;
+        }
+    }
+
+    public rightLink(): SpaceDefinition {
+        if (this.rightIndex !== undefined) {
+            return this.successors[this.rightIndex];
+        } else {
+            return undefined;
+        }
+    }
+
+
 
     /**
      * Notify observer for a virtual link change.
@@ -193,6 +241,102 @@ export class SpaceDefinitionImpl extends SpaceDefinition {
             predecessor.removeLink(this.self);
         }
     }
+
+
+
+    /**
+     * return the successor index for the link maching the straight path.
+     * The straight path is the link making the smaller angle with the space oriantation.
+     *
+     * This method use scalar product of 2 verctors to determine cos of the angle.
+     * V1xV2 = |V1|x|V2| x cos(V1V2)
+     *
+     * link with the higher cos is the straight link.
+     *
+     * @return numnber : index of straight link in the successor array. undefined if the array is empty.
+     */
+    private getStraightLinkIndex(): number {
+        let cos: number[];
+
+        if (this.successors.length === 0) {  // no successor link
+            return undefined;
+        }
+
+        // coordinates of the normal verctor with the spaceDefinition oriantation
+        let x1 = Math.cos(this.angle / 180 * Math.PI);
+        let y1 = Math.sin(this.angle / 180 * Math.PI);
+        //spacenorm = 1;
+
+        cos = this.successors.map((item) => {
+
+
+            let x2 = item.x - this.x;
+            let y2 = item.y - this.y;
+            let linknorm = Math.sqrt(x2 * x2 + y2 * y2);
+
+            return (x1 * x2 + y1 * y2) / linknorm;  // cos of the angle between spaceDefinition oriantation and the current link
+        });
+
+        // find higher cos index
+        let ret = 0;
+        let retCos = cos[0];
+
+        for (let i = 1; i < this.successors.length; i++) {
+            if (cos[i] > retCos) {
+                ret = i;
+                retCos = cos[i];
+            }
+        }
+
+        return ret;
+
+    }
+
+
+    /**
+     * Compute and set privates attributes straightIndex, leftInex, rightIndex
+     * this methode use getStraightLinkIndex to get the straight index, then it try to determine
+     * if other links are to the right or to left of this link.
+     *
+     * we use vectorial product sign for this.
+     * V1^V2 > 0 : V2 is on the left of V1
+     * V1^V2 < 0 : V2 is on the right of V1
+     */
+    public computeLinkOriantation() {
+        this.straightIndex = this.getStraightLinkIndex();  // identify straight index
+        this.rightIndex = undefined;
+        this.leftIndex = undefined;
+
+        if (this.straightIndex !== undefined) {
+
+            // straight vector coordinates
+            let x1 = this.straightLink().x - this.x;
+            let y1 = this.straightLink().y - this.y;
+            //spacenorm = 1;
+
+            for (let i = 0; i < this.successors.length; i++) {
+                if (i !== this.straightIndex) {
+
+                    // current vector coordinates
+                    let x2 = this.successors[i].x - this.x;
+                    let y2 = this.successors[i].y - this.y;
+
+                    // vectorial product
+                    let product = x1 * y2 - x2 * y1;
+
+                    // set the correct attribute according to the sign of the product
+                    if (product > 0) {
+                        this.leftIndex = i;
+                    } else {
+                        this.rightIndex = i;
+                    }
+
+                }
+            }
+        }
+    }
+
+
 
 }
 

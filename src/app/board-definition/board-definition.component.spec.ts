@@ -1,35 +1,36 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
+/*
+import { AngularFireDatabase } from 'angularfire2/database';
+import { GameboardComponent } from '../gameboard/gameboard.component';
+import { SpaceDefinitionComponent } from '../tokens/space-definition/space-definition.component';
 import { BoardDefinitionComponent } from './board-definition.component';
+import { BoardDefinitionService } from './board-definition.service';
+import { RouterTestingModule } from '@angular/router/testing';
+import { FirebaseApp } from 'angularfire2';
+import { EasyTest, easyTest } from 'ngx-easy-test';
 
-describe('BoardDefinitionComponent', () => {
-    let component: BoardDefinitionComponent;
-    let fixture: ComponentFixture<BoardDefinitionComponent>;
+describe('AppComponent', () => {
+    type Context = EasyTest<BoardDefinitionComponent>;
 
-    beforeEach(async(() => {
-        TestBed.configureTestingModule({
-            declarations: [BoardDefinitionComponent]
-        })
-            .compileComponents();
-    }));
-
-    beforeEach(() => {
-        fixture = TestBed.createComponent(BoardDefinitionComponent);
-        component = fixture.componentInstance;
-        fixture.detectChanges();
+    easyTest(BoardDefinitionComponent, {
+        declarations: [
+            BoardDefinitionComponent,
+            SpaceDefinitionComponent,
+            GameboardComponent
+        ],
+        imports: [
+            RouterTestingModule.withRoutes([])
+        ],
+        providers: [
+            BoardDefinitionService,
+            AngularFireDatabase,
+            FirebaseApp
+        ]
     });
 
-    it('should create', () => {
-        expect(component).toBeTruthy();
+    it('should create the component', function(this: Context) {
+        expect(this.testedElement).toBeTruthy();
     });
 
-
-    describe('Set tools', () => {
-        it('should set MoveAndZoomTool', () => {
-            component.ngOnInitsetMoveAnsZoomTool();
-
-            expect(component.getTool()).to
-
-        });
-    });
 });
+*/

@@ -14,7 +14,7 @@
     "eofline": true,
     "forin": true,
     "import-blacklist": [
-      true,
+      false,
       "rxjs"
     ],
     "import-spacing": true,
@@ -25,7 +25,7 @@
     "interface-over-type-literal": true,
     "label-position": true,
     "max-line-length": [
-      true,
+      false,
       150
     ],
     "member-access": false,
