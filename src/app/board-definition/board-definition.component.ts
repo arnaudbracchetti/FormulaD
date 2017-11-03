@@ -53,6 +53,8 @@ export class BoardDefinitionComponent implements OnInit, AfterViewInit {
     public removeSelectedElements() {
         let selectedElements: GameElement[] = this.spaceDefinitionComponents.filter((item) => item.isSelected());
 
+        this.deselectAllTokens();
+
         for (let item of selectedElements) {
             this.boardDefinitionService.removeSpaceDefinitionById(item.id);
         }
