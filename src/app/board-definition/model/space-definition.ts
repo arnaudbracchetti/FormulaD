@@ -272,14 +272,14 @@ export class SpaceDefinitionImpl extends SpaceDefinition {
 
         // coordinates of the normal verctor with the spaceDefinition oriantation
         let x1 = Math.cos(this.angle / 180 * Math.PI);
-        let y1 = Math.sin(this.angle / 180 * Math.PI);
+        let y1 = -Math.sin(this.angle / 180 * Math.PI); //the y-axis is inverted with respect to a Cartesian coordinate system
         //spacenorm = 1;
 
         cos = this.successors.map((item) => {
 
 
             let x2 = item.x - this.x;
-            let y2 = item.y - this.y;
+            let y2 = -(item.y - this.y); //the y-axis is inverted with respect to a Cartesian coordinate system
             let linknorm = Math.sqrt(x2 * x2 + y2 * y2);
 
             return (x1 * x2 + y1 * y2) / linknorm;  // cos of the angle between spaceDefinition oriantation and the current link
@@ -319,7 +319,7 @@ export class SpaceDefinitionImpl extends SpaceDefinition {
 
             // straight vector coordinates
             let x1 = this.straightLink().x - this.x;
-            let y1 = this.straightLink().y - this.y;
+            let y1 = -(this.straightLink().y - this.y);   // the y-axis is inverted with respect to a Cartesian coordinate system
             //spacenorm = 1;
 
             for (let i = 0; i < this.successors.length; i++) {
@@ -327,10 +327,10 @@ export class SpaceDefinitionImpl extends SpaceDefinition {
 
                     // current vector coordinates
                     let x2 = this.successors[i].x - this.x;
-                    let y2 = this.successors[i].y - this.y;
+                    let y2 = -(this.successors[i].y - this.y); //the y-axis is inverted with respect to a Cartesian coordinate system
 
                     // vectorial product
-                    let product = x1 * y2 - x2 * y1;
+                    let product = x1 * y2 - y1 * x2;
 
                     // set the correct attribute according to the sign of the product
                     if (product > 0) {
