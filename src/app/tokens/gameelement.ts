@@ -1,10 +1,21 @@
+import { EventEmitter, Output, NgZone } from '@angular/core';
 import { ToolEvent, Point } from 'paper';
 
 export abstract class GameElement {
     public abstract id: string;
     private action: Action;
+    private zone: NgZone;
 
-    public clicked(evt: ToolEvent) { }
+    @Output() tokenClicked: EventEmitter<GameElement> = new EventEmitter<GameElement>();
+
+    constructor(zone: NgZone) {
+        this.zone = zone;
+    }
+
+    public clicked(evt: ToolEvent) {
+        this.tokenClicked.emit(this);
+
+    }
 
 
     public dragStart(evt: ToolEvent) {
@@ -32,6 +43,7 @@ export abstract class GameElement {
     }
 
     public abstract isSelected(): boolean;
+    public abstract toggleSelect();
     public abstract getAction(evt: ToolEvent): Action;
 }
 

@@ -22,8 +22,8 @@ export class SpaceCreationTool extends Tool {
         this.board = board;
         this.gameElements = board.boardElements;
 
-        this.onMouseDown = (evt) => this.mouseDown(evt);
-        this.onMouseUp = (evt) => this.mouseUp(evt);
+        this.onMouseDown = (evt) => board.zone.run(() => this.mouseDown(evt));
+        this.onMouseUp = (evt) => board.zone.run(() => this.mouseUp(evt));
         this.onMouseMove = (evt) => this.mouseMove(evt);
         this.onMouseDrag = (evt) => this.mouseDrag(evt);
 

@@ -2,7 +2,7 @@ import { BoardDefinitionService } from '../../board-definition/board-definition.
 import { SpaceDefinition, SpaceDefinitionChange } from '../../board-definition/model/space-definition';
 import { GameElement, Action } from '../gameelement';
 import { MoveSpaceDefinitionAction, RotateSpaceDefinitionAction, LinkSpaceDefinitionAction } from './actions';
-import { Component, OnInit, OnDestroy, Input } from '@angular/core';
+import { Component, OnInit, OnDestroy, Input, NgZone } from '@angular/core';
 import { Group, CompoundPath, Point, Size, Path, ToolEvent, HitResult, CurveLocation } from 'paper';
 import { Observable, Subscription } from 'rxjs';
 
@@ -13,7 +13,7 @@ import { Observable, Subscription } from 'rxjs';
 
 @Component({
     selector: 'fd-space-definition',
-    template: '',  // no template, view is managed in a canvas with PaperJs
+    template: '<div></div>',  // no template, view is managed in a canvas with PaperJs
 })
 export class SpaceDefinitionComponent extends GameElement implements OnInit, OnDestroy {
 
@@ -28,11 +28,12 @@ export class SpaceDefinitionComponent extends GameElement implements OnInit, OnD
     private change$: Observable<SpaceDefinitionChange>;
     private changeSubscription: Subscription;
 
+
     public links: CompoundPath[] = new Array<CompoundPath>();
 
 
-    constructor(service: BoardDefinitionService) {
-        super();
+    constructor(service: BoardDefinitionService, zone: NgZone) {
+        super(zone);
         this.boardDefinitionService = service;
 
         this.representation.name = 'space-group';
@@ -60,9 +61,6 @@ export class SpaceDefinitionComponent extends GameElement implements OnInit, OnD
     }
 
 
-    public clicked(evt: ToolEvent): void {
-        this.representation.selected = !this.representation.selected;
-    }
 
     /**
      * This fonction define Action to apply on a drag mouse event. Choice are made by the zone
@@ -85,8 +83,12 @@ export class SpaceDefinitionComponent extends GameElement implements OnInit, OnD
     }
 
 
-    isSelected(): boolean {
+    public isSelected(): boolean {
         return this.representation.selected;
+    }
+
+    public toggleSelect() {
+        this.representation.selected = !this.representation.selected;
     }
 
 

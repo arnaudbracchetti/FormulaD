@@ -3,7 +3,7 @@ import { BoardDefinitionService } from '../board-definition/board-definition.ser
 import { GameElement } from '../tokens/gameelement';
 import { SpaceDefinitionComponent } from '../tokens/space-definition/space-definition.component';
 import { SpaceDefinition } from '../board-definition/model/space-definition';
-import { Component, OnInit, AfterViewInit, Input, ContentChildren, QueryList, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, AfterViewInit, Input, ContentChildren, QueryList, Output, EventEmitter, NgZone } from '@angular/core';
 import { PaperScope, Project, Raster, Tool, Point, ToolEvent, Layer } from 'paper';
 import { SpaceCreationTool } from './tools';
 
@@ -34,20 +34,22 @@ export class GameboardComponent implements OnInit, AfterViewInit {
     @ContentChildren(SpaceDefinitionComponent)
     public boardElements: QueryList<GameElement>;
 
-    @Output() private boardClick: EventEmitter<{ x: number, y: number }> = new EventEmitter<{ x: number, y: number }>();
+    @Output() private boardClick: EventEmitter<{ x: number, y: number, modifiers }> = new EventEmitter<{ x: number, y: number, modifiers }>();
     @Output() private delete = new EventEmitter();
+
 
 
     private scope: PaperScope;
     public board: Project;
 
     private moveBoardTool: Tool;
+    public zone: NgZone;
 
     private boardDefinitionService: BoardDefinitionService;
 
-    constructor(boardDefinitionService: BoardDefinitionService) {
+    constructor(boardDefinitionService: BoardDefinitionService, zone: NgZone) {
         this.boardDefinitionService = boardDefinitionService;
-
+        this.zone = zone;
 
 
 
@@ -82,6 +84,9 @@ export class GameboardComponent implements OnInit, AfterViewInit {
         });
     }
 
+    public getSelectedTokens(): GameElement[] {
+        return this.boardElements.filter((item) => item.isSelected() === true);
+    }
 
     public zoom(val: number) {
         this.board.view.zoom *= val;
@@ -91,11 +96,7 @@ export class GameboardComponent implements OnInit, AfterViewInit {
 
 
     public clicked(evt: ToolEvent) {
-        if (evt.modifiers.command) {
-            this.boardClick.emit({ x: evt.point.x, y: evt.point.y });
-        } else {
-            this.board.deselectAll();
-        }
+        this.boardClick.emit({ x: evt.point.x, y: evt.point.y, modifiers: evt.modifiers });
     }
 
     public deletePressed() {
@@ -113,6 +114,8 @@ export class GameboardComponent implements OnInit, AfterViewInit {
     public dragStop(evt: ToolEvent) {
 
     }
+
+
 
 }
 

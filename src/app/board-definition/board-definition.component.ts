@@ -25,6 +25,7 @@ export class BoardDefinitionComponent implements OnInit, AfterViewInit {
     public spaceDefinitionKeys$: Observable<string[]>;
 
     private route: ActivatedRoute;
+    private showDialog = false;
 
     constructor(route: ActivatedRoute, service: BoardDefinitionService) {
         this.route = route;
@@ -60,11 +61,36 @@ export class BoardDefinitionComponent implements OnInit, AfterViewInit {
         for (let item of selectedElements) {
             this.boardDefinitionService.removeSpaceDefinitionById(item.id);
         }
+
+        this.selectionChange();
     }
 
-    public crateNewSpaceDefinition(evt) {
-        this.boardDefinitionService.addNewSpaceDefinition(evt.x, evt.y);
+    public deselectAllTokens() {
+        this.spaceDefinitionComponents.filter((item) => item.isSelected()).forEach((item) => item.toggleSelect());
+        this.selectionChange();
     }
 
+    public selectionChange() {
 
+        if (this.getSelectedSpaceDefinition().length === 1) {
+            this.showDialog = true;
+        } else {
+            this.showDialog = false;
+        }
+
+    }
+
+    public onTokenClicked(token: GameElement) {
+        token.toggleSelect();
+        this.selectionChange();
+    }
+
+    public onBoardClicked(evt) {
+        if (evt.modifiers.command) {
+            this.boardDefinitionService.addNewSpaceDefinition(evt.x, evt.y);
+        } else {
+            this.deselectAllTokens();
+
+        }
+    }
 }
