@@ -1,6 +1,7 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { AngularFireModule } from 'angularfire2';
 import { AngularFireDatabaseModule } from 'angularfire2/database';
@@ -30,6 +31,7 @@ import { FormsModule } from '@angular/forms';
     imports: [
         BrowserModule,
         FormsModule,
+        BrowserAnimationsModule,
         AngularFireModule.initializeApp(environment.firebase),
         AngularFireDatabaseModule,
         RouterModule.forRoot(
