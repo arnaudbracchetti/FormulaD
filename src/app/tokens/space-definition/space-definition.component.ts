@@ -32,8 +32,8 @@ export class SpaceDefinitionComponent extends GameElement implements OnInit, OnD
     public links: CompoundPath[] = new Array<CompoundPath>();
 
 
-    constructor(service: BoardDefinitionService, zone: NgZone) {
-        super(zone);
+    constructor(service: BoardDefinitionService) {
+        super();
         this.boardDefinitionService = service;
 
         this.representation.name = 'space-group';
@@ -79,7 +79,7 @@ export class SpaceDefinitionComponent extends GameElement implements OnInit, OnD
             }
         }
 
-        return new MoveSpaceDefinitionAction(this.data);
+        return new MoveSpaceDefinitionAction(this.data); // default Action
     }
 
 

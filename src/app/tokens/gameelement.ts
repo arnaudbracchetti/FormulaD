@@ -1,15 +1,14 @@
-import { EventEmitter, Output, NgZone } from '@angular/core';
+import { EventEmitter, Output } from '@angular/core';
 import { ToolEvent, Point } from 'paper';
 
 export abstract class GameElement {
     public abstract id: string;
     private action: Action;
-    private zone: NgZone;
 
     @Output() tokenClicked: EventEmitter<GameElement> = new EventEmitter<GameElement>();
 
-    constructor(zone: NgZone) {
-        this.zone = zone;
+    constructor() {
+
     }
 
     public clicked(evt: ToolEvent) {

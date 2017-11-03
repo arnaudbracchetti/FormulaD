@@ -1,7 +1,6 @@
 
 
 import { GameElement } from '../tokens/gameelement';
-//import { Action, MoveSpaceDefinitionAction, LinkSpaceDefinitionAction, RotateSpaceDefinitionAction, ScrollViewAction } from '../tokens/space-definition/actions';
 import { BoardDefinitionService } from '../board-definition/board-definition.service';
 import { GameboardComponent } from './gameboard.component';
 import { SpaceDefinition } from '../board-definition/model/space-definition';
@@ -13,18 +12,15 @@ import { Tool, Project, ToolEvent, HitResult, Group } from 'paper';
 export class SpaceCreationTool extends Tool {
 
     private board: GameboardComponent;
-    private gameElements: QueryList<GameElement>;
     private pointedItem: GameElement;
     private isDragRunning = false;
 
     constructor(board: GameboardComponent) {
         super();
         this.board = board;
-        this.gameElements = board.boardElements;
 
         this.onMouseDown = (evt) => board.zone.run(() => this.mouseDown(evt));
         this.onMouseUp = (evt) => board.zone.run(() => this.mouseUp(evt));
-        this.onMouseMove = (evt) => this.mouseMove(evt);
         this.onMouseDrag = (evt) => this.mouseDrag(evt);
 
 
@@ -50,18 +46,16 @@ export class SpaceCreationTool extends Tool {
     public mouseDown(evt: ToolEvent): void {
 
 
-        if (evt.item.data) {  //TODO: A revoir pour une prise en compte correct du click sur fond de carte
-            this.pointedItem = this.board.boardElements.find((item) => item.id === evt.item.data);
-        } else {
+        if (evt.item.name === 'board-map') {
             this.pointedItem = undefined;
+        } else if (evt.item.data) {
+            this.pointedItem = this.board.boardElements.find((item) => item.id === evt.item.data);
         }
-
 
     }
 
     public mouseUp(evt: ToolEvent): void {
 
-        // let dist = evt.downPoint.subtract(evt.point).length;
 
         if (!this.isDragRunning) {
             if (this.pointedItem) {
@@ -84,10 +78,7 @@ export class SpaceCreationTool extends Tool {
 
     }
 
-    public mouseMove(evt: ToolEvent): void {
 
-
-    }
 
     public mouseDrag(evt: ToolEvent): void {
         if (this.pointedItem) {

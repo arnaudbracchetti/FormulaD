@@ -31,7 +31,7 @@ export class BoardDefinitionService {
     }
 
 
-    public getSpaceDefiniitionKeys(): Observable<string[]> {
+    public getSpaceDefinitionKeys(): Observable<string[]> {
         return this.selectedBoardSpacesDefinitions.asObservable().map((map) => {
             let ret = [];
             map.forEach((item) => ret.push(item.id));
@@ -60,8 +60,6 @@ export class BoardDefinitionService {
 
                         list.push(boardDef);
                     }
-
-
                 }
 
                 resolve(list);
@@ -90,14 +88,6 @@ export class BoardDefinitionService {
 
     }
 
-    /*
-        public getSelectedSpaceDefinitions(): SpaceDefinition[] {
-            let ret: SpaceDefinition[] = [];
-            this.selectedBoardSpacesDefinitions.getValue().forEach((value, key) => {
-                if(value..isSelected())
-            });
-        }
-    */
 
     /**
      * Initialize game board information from database. This methode should be called prior
@@ -139,7 +129,6 @@ export class BoardDefinitionService {
     }
 
     public addNewSpaceDefinition(x: number, y: number) {
-        console.log(x + ' , ' + y);
         this.spaceDefinitionRef.child('Objects').push(
             {
                 x: x,
@@ -148,10 +137,16 @@ export class BoardDefinitionService {
 
     }
 
+    public removeSpaceDefinitionById(id: string) {
+
+        this.spaceDefinitionRef.child('Objects').child(id).remove();
+        this.spaceDefinitionRef.child('Links').child(id).remove();
+
+    }
+
     private onAddNewSpaceDefinition(id: string, x: number, y: number, angle?: number, isStartPosition?: boolean): SpaceDefinition {
         let spaceDef: SpaceDefinition = new SpaceDefinitionImpl(id, x, y, angle, isStartPosition);
         spaceDef = new SpaceDefinitionFirebasePercitence(spaceDef, this.spaceDefinitionRef, this);
-        //spaceDef = new SpaceDefinitionPaperRepresentation(spaceDef);
 
         this.selectedBoardSpacesDefinitions.getValue().set(spaceDef.id, spaceDef);
         this.selectedBoardSpacesDefinitions.next(this.selectedBoardSpacesDefinitions.getValue());
@@ -159,12 +154,7 @@ export class BoardDefinitionService {
         return spaceDef;
     }
 
-    public removeSpaceDefinitionById(id: string) {
 
-        this.spaceDefinitionRef.child('Objects').child(id).remove();
-        this.spaceDefinitionRef.child('Links').child(id).remove();
-
-    }
 
     private onRemoveSpaceDefinition(key: string) {
         this.selectedBoardSpacesDefinitions.getValue().get(key).remove();

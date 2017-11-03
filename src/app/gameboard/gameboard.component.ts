@@ -80,6 +80,7 @@ export class GameboardComponent implements OnInit, AfterViewInit {
         this.boardDefinitionService.selectedBoardImageFile.then((fileUrl) => {
             this.board.layers['background'].activate();
             const raster = new Raster(fileUrl);
+            raster.name = 'board-map';
             this.board.layers['foreground'].activate();
         });
     }

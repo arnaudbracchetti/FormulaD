@@ -1,9 +1,8 @@
 import { BoardDefinitionService } from './board-definition.service';
-import { GameboardComponent } from '../gameboard/gameboard.component';
 import { GameElement } from '../tokens/gameelement';
 import { SpaceDefinitionComponent } from '../tokens/space-definition/space-definition.component';
 import { SpaceDefinition } from './model/space-definition';
-import { Component, OnInit, AfterViewInit, ViewChild, Input, QueryList, ViewChildren } from '@angular/core';
+import { Component, OnInit, AfterViewInit, QueryList, ViewChildren } from '@angular/core';
 import { Router, ActivatedRoute, ParamMap } from '@angular/router';
 import { Observable } from 'rxjs';
 
@@ -13,10 +12,6 @@ import { Observable } from 'rxjs';
     styleUrls: ['./board-definition.component.css']
 })
 export class BoardDefinitionComponent implements OnInit, AfterViewInit {
-
-
-    //@ViewChild('gameboard')
-    //private gameBoard: GameboardComponent;
 
     @ViewChildren(SpaceDefinitionComponent)
     private spaceDefinitionComponents: QueryList<SpaceDefinitionComponent>;
@@ -30,7 +25,7 @@ export class BoardDefinitionComponent implements OnInit, AfterViewInit {
     constructor(route: ActivatedRoute, service: BoardDefinitionService) {
         this.route = route;
         this.boardDefinitionService = service;
-        this.spaceDefinitionKeys$ = this.boardDefinitionService.getSpaceDefiniitionKeys();
+        this.spaceDefinitionKeys$ = this.boardDefinitionService.getSpaceDefinitionKeys();
     }
 
 
@@ -81,12 +76,13 @@ export class BoardDefinitionComponent implements OnInit, AfterViewInit {
     }
 
     public onTokenClicked(token: GameElement) {
+        this.deselectAllTokens(); // only one spaceDefinition selected at a time
         token.toggleSelect();
         this.selectionChange();
     }
 
     public onBoardClicked(evt) {
-        if (evt.modifiers.command) {
+        if (evt.modifiers.command) { // create new space definition if ctrl/cmd key is pressed
             this.boardDefinitionService.addNewSpaceDefinition(evt.x, evt.y);
         } else {
             this.deselectAllTokens();
