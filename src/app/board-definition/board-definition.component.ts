@@ -17,22 +17,25 @@ export class BoardDefinitionComponent implements OnInit, AfterViewInit {
     private spaceDefinitionComponents: QueryList<SpaceDefinitionComponent>;
 
     public boardDefinitionService: BoardDefinitionService;
-    public spaceDefinitionKeys$: Observable<string[]>;
+    public spaceDefinitions$: Observable<SpaceDefinition[]>;
 
     private route: ActivatedRoute;
     private showDialog = false;
+    public mapFile: string;
 
     constructor(route: ActivatedRoute, service: BoardDefinitionService) {
         this.route = route;
         this.boardDefinitionService = service;
-        this.spaceDefinitionKeys$ = this.boardDefinitionService.getSpaceDefinitionKeys();
+        this.spaceDefinitions$ = this.boardDefinitionService.getSpaceDefinitions();
     }
 
 
 
     ngOnInit() {
         this.route.paramMap.subscribe((param) => {
-            this.boardDefinitionService.selectBoard(param.get('trackKey'));
+            this.boardDefinitionService.selectBoard(param.get('trackKey')).then(
+                () => this.mapFile = this.boardDefinitionService.selectedBoardImageFile
+            );
         });
     }
 

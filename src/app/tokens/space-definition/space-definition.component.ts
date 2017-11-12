@@ -2,7 +2,7 @@ import { BoardDefinitionService } from '../../board-definition/board-definition.
 import { SpaceDefinition, SpaceDefinitionChange } from '../../board-definition/model/space-definition';
 import { GameElement, Action } from '../gameelement';
 import { MoveSpaceDefinitionAction, RotateSpaceDefinitionAction, LinkSpaceDefinitionAction } from './actions';
-import { Component, OnInit, OnDestroy, Input, NgZone } from '@angular/core';
+import { Component, OnInit, OnDestroy, Input, NgZone, SimpleChanges, OnChanges } from '@angular/core';
 import { Group, CompoundPath, Point, Size, Path, ToolEvent, HitResult, CurveLocation } from 'paper';
 import { Observable, Subscription } from 'rxjs';
 
@@ -15,16 +15,18 @@ import { Observable, Subscription } from 'rxjs';
     selector: 'fd-space-definition',
     template: '<div></div>',  // no template, view is managed in a canvas with PaperJs
 })
-export class SpaceDefinitionComponent extends GameElement implements OnInit, OnDestroy {
+export class SpaceDefinitionComponent extends GameElement implements OnChanges, OnInit, OnDestroy {
 
 
     @Input()
-    public readonly id: string;
+    public data: SpaceDefinition;
+
+    public id: string;
 
     private boardDefinitionService: BoardDefinitionService;
     private representation: Group = new Group();
     private oldAngle: number = 0;
-    public data: SpaceDefinition;
+
     private change$: Observable<SpaceDefinitionChange>;
     private changeSubscription: Subscription;
 
@@ -38,20 +40,31 @@ export class SpaceDefinitionComponent extends GameElement implements OnInit, OnD
 
         this.representation.name = 'space-group';
         this.representation.applyMatrix = true;
+        this.initRepresentation();
 
     }
 
+    ngOnChanges(changes: SimpleChanges) {
+        if (changes.data) {
+            // suscribe to data modification
+            if (this.changeSubscription) { this.changeSubscription.unsubscribe(); }
+            this.change$ = this.data.getChangeObservable();
+            this.changeSubscription = this.change$.subscribe((action) => this.drawRepresentation(action.type));
+
+
+            this.id = this.data.id;
+            this.representation.data = this.data.id;
+            this.drawRepresentation();
+
+        }
+    }
+
     ngOnInit() {
-        this.data = this.boardDefinitionService.getSpaceDefinitionFromId(this.id);
+        //this.data = this.boardDefinitionService.getSpaceDefinitionFromId(this.id);
 
-        // suscribe to data modification
-        this.change$ = this.data.getChangeObservable();
-        this.changeSubscription = this.change$.subscribe((action) => this.drawRepresentation(action.type));
 
-        // init view
-        this.representation.data = this.id;
-        this.initRepresentation();
-        this.drawRepresentation();
+
+
     }
 
     ngOnDestroy(): void {

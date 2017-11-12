@@ -1,16 +1,17 @@
 
-<section class="tile is-5 dialog-position" >
+<section class="tile dialog-position" >
 	<fd-space-definition-form [model]="getSelectedSpaceDefinition()[0]" [visible]="showDialog"></fd-space-definition-form>
 	
 </section>
 
 <section id='game-board'>
 	<fd-gameboard #gameboard
+		[mapFile]="mapFile"
 		(delete)="removeSelectedElements()"
 		(boardClick)="onBoardClicked($event)">
 			<fd-space-definition 
-				[id]="key" 
-				*ngFor="let key of spaceDefinitionKeys$ | async"
+				[data]="sd"  
+				*ngFor="let sd of spaceDefinitions$ | async"
 				(tokenClicked)="onTokenClicked($event)">
 			</fd-space-definition>
 	</fd-gameboard>

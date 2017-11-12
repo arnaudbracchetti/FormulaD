@@ -125,6 +125,8 @@ export class SpaceDefinitionImpl extends SpaceDefinition {
         }
 
         this.computeLinkOriantation();
+
+
     }
 
 

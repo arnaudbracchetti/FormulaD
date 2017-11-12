@@ -18,7 +18,7 @@ export class BoardDefinition {
 export class BoardDefinitionService {
 
     public selectedBoardKey: string = 'Circuit1';  // TODO:  supprimer cette initialisation
-    public selectedBoardImageFile: Promise<string>;
+    public selectedBoardImageFile: string;
     //public selectedBoardSpacesDefinitions: Map<string, SpaceDefinition> = new Map<string, SpaceDefinition>();
     private selectedBoardSpacesDefinitions: BehaviorSubject<Map<string, SpaceDefinition>> = new BehaviorSubject<Map<string, SpaceDefinition>>(new Map());
 
@@ -31,10 +31,10 @@ export class BoardDefinitionService {
     }
 
 
-    public getSpaceDefinitionKeys(): Observable<string[]> {
+    public getSpaceDefinitions(): Observable<SpaceDefinition[]> {
         return this.selectedBoardSpacesDefinitions.asObservable().map((map) => {
-            let ret = [];
-            map.forEach((item) => ret.push(item.id));
+            let ret: SpaceDefinition[] = [];
+            map.forEach((item) => ret.push(item));
             return ret;
         });
     }
@@ -88,42 +88,79 @@ export class BoardDefinitionService {
 
     }
 
+    /**
+     * return an array with all space definition with isStartPosition attribut set to true
+     */
+    public getStartingPosition(): SpaceDefinition[] {
+        let ret: SpaceDefinition[];
+        let spaceDefs: Map<string, SpaceDefinition> = this.selectedBoardSpacesDefinitions.getValue();
+        spaceDefs.forEach((value) => {
+            if (value.isStartPosition) {
+                ret.push(value);
+            }
+        });
+
+        return ret;
+    }
+
+
 
     /**
-     * Initialize game board information from database. This methode should be called prior
+     * Initialize game board information from database. This methode should be called before
      * all other methods on this service.
      *
      * @param boardKey board game id to load from database
      *
      */
-    public selectBoard(boardKey: string) {
+    public async selectBoard(boardKey: string) {
 
         this.selectedBoardKey = boardKey;
+
+
+
+        this.selectedBoardSpacesDefinitions.getValue().forEach((value, key) => value.remove());
         this.selectedBoardSpacesDefinitions.getValue().clear();
         this.selectedBoardSpacesDefinitions.next(this.selectedBoardSpacesDefinitions.getValue());
+
+
+
+        if (this.spaceDefinitionRef) {
+            this.spaceDefinitionRef.child('Objects').off();
+        }
         this.spaceDefinitionRef = this.db.database.ref(`SpaceDefinitions/${this.selectedBoardKey}`);
 
-        //TODO: Clean old selection before loading a new one
+        // load all space definitions in one block
+        let objectRef = this.spaceDefinitionRef.child('Objects');
+        let loadSpaceDef = objectRef.once('value').then((snap) => {
+            let sdMap: Map<string, SpaceDefinition> = new Map<string, SpaceDefinition>();
+            snap.forEach((item) => {
+                let val: SpaceDefinition = item.val();
+                let sd = this.instanciateSpaceDefintion(item.key, val.x, val.y, val.angle, val.isStartPosition);
+                sdMap.set(item.key, sd);
 
-        let ref = this.db.list<SpaceDefinition>(this.spaceDefinitionRef.child('Objects'));
-        ref.stateChanges().subscribe(action => {
-            switch (action.type) {
-                case 'child_added':
-                    let val: SpaceDefinition = action.payload.val();
-                    this.onAddNewSpaceDefinition(action.key, val.x, val.y, val.angle, val.isStartPosition);
-                    break;
-                case 'child_removed':
-                    this.onRemoveSpaceDefinition(action.key);
-                    break;
-            }
-
-        });
-
-        this.selectedBoardImageFile = new Promise<string>((resolve, reject) => {
-            this.db.database.ref(`BoardDefinitions/${this.selectedBoardKey}/mapFile`).once('value', (snapshot) => {
-                resolve(`../assets/${snapshot.val()}`);
             });
+            this.selectedBoardSpacesDefinitions.next(sdMap);
         });
+
+        let loadMap = this.db.database.ref(`BoardDefinitions/${this.selectedBoardKey}/mapFile`).once('value').then(
+            (snapshot) => {
+                this.selectedBoardImageFile = `../assets/${snapshot.val()}`;
+            });
+
+        await loadSpaceDef;
+        await loadMap;
+
+        console.log('load ok');
+
+        objectRef.on('child_added', (snap) => {
+            let val: SpaceDefinition = snap.val();
+            this.onAddNewSpaceDefinition(snap.key, val.x, val.y, val.angle, val.isStartPosition);
+        });
+
+        objectRef.on('child_removed', (snap) => {
+            this.onRemoveSpaceDefinition(snap.key);
+        });
+
 
 
     }
@@ -145,13 +182,18 @@ export class BoardDefinitionService {
     }
 
     private onAddNewSpaceDefinition(id: string, x: number, y: number, angle?: number, isStartPosition?: boolean): SpaceDefinition {
-        let spaceDef: SpaceDefinition = new SpaceDefinitionImpl(id, x, y, angle, isStartPosition);
-        spaceDef = new SpaceDefinitionFirebasePercitence(spaceDef, this.spaceDefinitionRef, this);
+        if (this.selectedBoardSpacesDefinitions.getValue().has(id)) {
+            return this.selectedBoardSpacesDefinitions.getValue().get(id);
 
-        this.selectedBoardSpacesDefinitions.getValue().set(spaceDef.id, spaceDef);
-        this.selectedBoardSpacesDefinitions.next(this.selectedBoardSpacesDefinitions.getValue());
+        } else {
 
-        return spaceDef;
+            let spaceDef: SpaceDefinition = this.instanciateSpaceDefintion(id, x, y, angle, isStartPosition);
+
+            this.selectedBoardSpacesDefinitions.getValue().set(spaceDef.id, spaceDef);
+            this.selectedBoardSpacesDefinitions.next(this.selectedBoardSpacesDefinitions.getValue());
+
+            return spaceDef;
+        }
     }
 
 
@@ -163,5 +205,11 @@ export class BoardDefinitionService {
     }
 
 
+    private instanciateSpaceDefintion(id: string, x: number, y: number, angle?: number, isStartPosition?: boolean): SpaceDefinition {
+        let spaceDef: SpaceDefinition = new SpaceDefinitionImpl(id, x, y, angle, isStartPosition);
+        spaceDef = new SpaceDefinitionFirebasePercitence(spaceDef, this.spaceDefinitionRef, this);
+
+        return spaceDef;
+    }
 
 }

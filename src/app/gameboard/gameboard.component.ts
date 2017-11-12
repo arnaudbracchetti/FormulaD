@@ -3,7 +3,7 @@ import { BoardDefinitionService } from '../board-definition/board-definition.ser
 import { GameElement } from '../tokens/gameelement';
 import { SpaceDefinitionComponent } from '../tokens/space-definition/space-definition.component';
 import { SpaceDefinition } from '../board-definition/model/space-definition';
-import { Component, OnInit, AfterViewInit, Input, ContentChildren, QueryList, Output, EventEmitter, NgZone } from '@angular/core';
+import { Component, OnInit, AfterViewInit, Input, ContentChildren, QueryList, Output, EventEmitter, NgZone, AfterViewChecked, SimpleChange, SimpleChanges, OnChanges } from '@angular/core';
 import { PaperScope, Project, Raster, Tool, Point, ToolEvent, Layer } from 'paper';
 import { SpaceCreationTool } from './tools';
 
@@ -21,18 +21,21 @@ import { SpaceCreationTool } from './tools';
 @Component({
     selector: 'fd-gameboard',
     template: `
-    <canvas id='board'></canvas>
+    <canvas id='board'>
+    </canvas>
 
   `,
     styles: [
         ':host { display : flex}',
         'canvas { flex : 1; height: 700px }']
 })
-export class GameboardComponent implements OnInit, AfterViewInit {
+export class GameboardComponent implements OnInit, AfterViewInit, OnChanges {
 
 
     @ContentChildren(SpaceDefinitionComponent)
     public boardElements: QueryList<GameElement>;
+
+    @Input() private mapFile: string;
 
     @Output() private boardClick: EventEmitter<{ x: number, y: number, modifiers }> = new EventEmitter<{ x: number, y: number, modifiers }>();
     @Output() private delete = new EventEmitter();
@@ -77,12 +80,29 @@ export class GameboardComponent implements OnInit, AfterViewInit {
         this.board.layers['foreground'] = new Layer();
 
 
-        this.boardDefinitionService.selectedBoardImageFile.then((fileUrl) => {
+        if (this.mapFile) {
+            this.board.layers['background'].activate();
+            const raster = new Raster(this.mapFile);
+            raster.name = 'board-map';
+            this.board.layers['foreground'].activate();
+        }
+        /*this.boardDefinitionService.selectedBoardImageFile.then((fileUrl) => {
             this.board.layers['background'].activate();
             const raster = new Raster(fileUrl);
             raster.name = 'board-map';
             this.board.layers['foreground'].activate();
-        });
+        });*/
+
+
+    }
+
+    ngOnChanges(changes: SimpleChanges) {
+        if (changes.mapFile && this.board) {
+            this.board.layers['background'].activate();
+            const raster = new Raster(this.mapFile);
+            raster.name = 'board-map';
+            this.board.layers['foreground'].activate();
+        }
     }
 
     public getSelectedTokens(): GameElement[] {

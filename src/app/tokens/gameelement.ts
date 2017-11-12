@@ -53,3 +53,16 @@ export interface Action {
     endAction?(point: Point);
 }
 
+export class NoopAction implements Action {
+    startAction(point: Point) {
+
+    }
+    doAction(point: Point) {
+
+    }
+    endAction(point: Point) {
+
+    }
+
+}
+

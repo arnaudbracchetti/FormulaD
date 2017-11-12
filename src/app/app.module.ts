@@ -18,6 +18,8 @@ import { TrackSelectionComponent } from './track-selection/track-selection.compo
 import { routes } from './routes-definition';
 import { SpaceDefinitionComponent } from './tokens/space-definition/space-definition.component';
 import { FormsModule } from '@angular/forms';
+import { GameComponent } from './game/game.component';
+import { CarTokenComponent } from './tokens/car-token/car-token.component';
 
 @NgModule({
     declarations: [
@@ -26,7 +28,9 @@ import { FormsModule } from '@angular/forms';
         BoardDefinitionComponent,
         TrackSelectionComponent,
         SpaceDefinitionComponent,
-        SpaceDefinitionFormComponent
+        SpaceDefinitionFormComponent,
+        GameComponent,
+        CarTokenComponent
     ],
     imports: [
         BrowserModule,

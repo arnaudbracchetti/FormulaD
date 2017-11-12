@@ -49,7 +49,7 @@ export class SpaceCreationTool extends Tool {
         if (evt.item.name === 'board-map') {
             this.pointedItem = undefined;
         } else if (evt.item.data) {
-            this.pointedItem = this.board.boardElements.find((item) => item.id === evt.item.data);
+            this.pointedItem = this.board.boardElements.find((sdToken) => sdToken.id === evt.item.data);
         }
 
     }
